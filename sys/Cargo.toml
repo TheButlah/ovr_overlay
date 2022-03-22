@@ -12,5 +12,7 @@ cxx = "1"
 
 [build-dependencies]
 autocxx-build = "0.17"
+normpath = "0.3"
+cmake = "0.1"
 
 [link]
