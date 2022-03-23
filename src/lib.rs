@@ -1,9 +1,13 @@
-use derive_more::From;
+pub mod overlay;
+
+mod errors;
+
+pub use self::errors::EVRInitError;
 pub use ovr_overlay_sys as sys;
-pub mod enums;
 
-use enums::EVRInitError;
+use self::overlay::IOverlay;
 
+use derive_more::From;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use thiserror::Error;
@@ -37,7 +41,7 @@ impl Context {
             if error.0 != sys::EVRInitError::VRInitError_None {
                 return Err(InitError::Sys(error));
             }
-            Err(InitError::Sys(error))
+            Ok(Self {})
         } else {
             Err(InitError::AlreadyInitialized)
         }
@@ -47,6 +51,10 @@ impl Context {
     // see https://docs.rs/openvr/latest/openvr/struct.Context.html#safety
     pub unsafe fn shutdown(self) {
         sys::VR_Shutdown()
+    }
+
+    pub fn overlay(&self) -> IOverlay<'_> {
+        IOverlay::new(self)
     }
 }
 

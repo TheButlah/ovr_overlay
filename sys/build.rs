@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use normpath::PathExt;
 
@@ -17,19 +17,10 @@ fn main() {
 
     // Link the C++ libraries
     #[cfg(target_os = "windows")]
-    let input_files = {
-        // Maybe we need these???
-
-        // println!(
-        //     "cargo:rustc-link-search=native={:?}",
-        //     relative("openvr/lib/win64")
-        // );
-
-        [
-            relative("openvr/bin/win64/openvr_api.dll"),
-            relative("openvr/lib/win64/openvr_api.lib"),
-        ]
-    };
+    let input_files = [
+        relative("openvr/bin/win64/openvr_api.dll"),
+        relative("openvr/lib/win64/openvr_api.lib"),
+    ];
 
     #[cfg(not(target_os = "windows"))]
     panic!("Haven't tested on platforms other than windows!");
