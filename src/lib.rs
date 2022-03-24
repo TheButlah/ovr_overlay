@@ -2,7 +2,7 @@ pub mod overlay;
 
 mod errors;
 
-pub use self::errors::EVRInitError;
+pub use self::errors::{EVRInitError, InitError};
 pub use ovr_overlay_sys as sys;
 
 use self::overlay::IOverlay;
@@ -10,7 +10,6 @@ use self::overlay::IOverlay;
 use derive_more::From;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
-use thiserror::Error;
 
 lazy_static! {
     // Mutex instead of atomic allows for blocking on lock
@@ -29,17 +28,17 @@ impl Context {
             if *guard {
                 return Err(InitError::AlreadyInitialized);
             }
-            let mut error = std::mem::MaybeUninit::<sys::EVRInitError>::uninit();
-            let error = unsafe {
+            let mut err = std::mem::MaybeUninit::<sys::EVRInitError>::uninit();
+            let err = unsafe {
                 let _ = sys::VR_Init(
-                    error.as_mut_ptr(),
+                    err.as_mut_ptr(),
                     sys::EVRApplicationType::VRApplication_Overlay,
                     std::ptr::null(),
                 );
-                EVRInitError(error.assume_init())
+                err.assume_init()
             };
-            if error.0 != sys::EVRInitError::VRInitError_None {
-                return Err(InitError::Sys(error));
+            if let Some(err) = EVRInitError::new(err) {
+                return Err(InitError::Sys(err));
             }
             Ok(Self {})
         } else {
@@ -56,12 +55,4 @@ impl Context {
     pub fn overlay(&self) -> IOverlay<'_> {
         IOverlay::new(self)
     }
-}
-
-#[derive(Error, Debug, From)]
-pub enum InitError {
-    #[error("OpenVR already initialized")]
-    AlreadyInitialized,
-    #[error("sys::{0}")]
-    Sys(EVRInitError),
 }

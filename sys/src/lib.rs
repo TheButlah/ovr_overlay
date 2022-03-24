@@ -6,7 +6,7 @@ include_cpp! {
     #include "openvr.h"
 
     generate!("vr::VR_Init")
-    generate!("vr::EVRApplicationType")
+    generate_pod!("vr::EVRApplicationType")
     generate!("vr::VR_Shutdown")
 
     generate!("vr::IVRSystem")
@@ -14,10 +14,11 @@ include_cpp! {
 
     generate!("vr::IVROverlay")
     generate!("vr::VROverlay")
-    generate!("vr::EVROverlayError")
+    generate_pod!("vr::EVROverlayError")
+    generate_pod!("vr::VROverlayHandle_t")
 
     generate!("vr::VR_GetVRInitErrorAsSymbol")
-    generate!("vr::EVRInitError")
+    generate_pod!("vr::EVRInitError")
 
 }
 

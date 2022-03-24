@@ -14,5 +14,3 @@ cxx = "1"
 autocxx-build = "0.17"
 normpath = "0.3"
 cmake = "0.1"
-
-[link]
