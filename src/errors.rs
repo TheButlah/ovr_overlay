@@ -1,7 +1,8 @@
 use crate::sys;
 
 use derive_more::From;
-use std::{ffi::CStr, fmt::Display};
+use std::ffi::CStr;
+use std::fmt::Display;
 
 #[derive(From, Debug, Copy, Clone, PartialEq, Eq)]
 pub struct EVRInitError(pub sys::EVRInitError);

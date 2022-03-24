@@ -21,7 +21,6 @@ fn main() {
         relative("openvr/bin/win64/openvr_api.dll"),
         relative("openvr/lib/win64/openvr_api.lib"),
     ];
-
     #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
     let input_files = [relative("openvr/bin/linux64/libopenvr_api.so")];
 
