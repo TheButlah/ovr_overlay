@@ -22,8 +22,8 @@ fn main() {
         relative("openvr/lib/win64/openvr_api.lib"),
     ];
 
-    #[cfg(not(target_os = "windows"))]
-    panic!("Haven't tested on platforms other than windows!");
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    let input_files = [relative("openvr/bin/linux64/libopenvr_api.so")];
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     for f in input_files {
