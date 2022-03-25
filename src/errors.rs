@@ -7,11 +7,11 @@ use std::fmt::Display;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 pub struct EVRInitError(sys::EVRInitError);
 impl EVRInitError {
-    pub fn new(err: sys::EVRInitError) -> Option<Self> {
+    pub fn new(err: sys::EVRInitError) -> Result<(), Self> {
         if err == sys::EVRInitError::VRInitError_None {
-            None
+            Ok(())
         } else {
-            Some(Self(err))
+            Err(Self(err))
         }
     }
 
@@ -35,11 +35,11 @@ impl Display for EVRInitError {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 pub struct EVROverlayError(sys::EVROverlayError);
 impl EVROverlayError {
-    pub fn new(err: sys::EVROverlayError) -> Option<Self> {
+    pub fn new(err: sys::EVROverlayError) -> Result<(), Self> {
         if err == sys::EVROverlayError::VROverlayError_None {
-            None
+            Ok(())
         } else {
-            Some(Self(err))
+            Err(Self(err))
         }
     }
 

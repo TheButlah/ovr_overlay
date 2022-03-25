@@ -7,7 +7,6 @@ pub use ovr_overlay_sys as sys;
 
 use self::overlay::IOverlay;
 
-use derive_more::From;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
@@ -37,9 +36,7 @@ impl Context {
                 );
                 err.assume_init()
             };
-            if let Some(err) = EVRInitError::new(err) {
-                return Err(InitError::Sys(err));
-            }
+            EVRInitError::new(err)?;
             Ok(Self {})
         } else {
             Err(InitError::AlreadyInitialized)
@@ -54,5 +51,22 @@ impl Context {
 
     pub fn overlay(&self) -> IOverlay<'_> {
         IOverlay::new(self)
+    }
+}
+
+/// Tints each color channel by multiplying it with the given f32
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct ColorTint {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+}
+impl Default for ColorTint {
+    fn default() -> Self {
+        Self {
+            r: 1.,
+            g: 1.,
+            b: 1.,
+        }
     }
 }

@@ -11,10 +11,6 @@ fn main() {
     // arbitrary library name, pick anything
     b.flag_if_supported("-std=c++14").compile("autocxx-demo");
 
-    println!("cargo:rerun-if-changed={:?}", relative("src/lib.rs"));
-    println!("cargo:rerun-if-changed={:?}", relative("openvr/bin/"));
-    println!("cargo:rerun-if-changed={:?}", relative("openvr/lib/"));
-
     // Link the C++ libraries
     #[cfg(target_os = "windows")]
     let input_files = [
