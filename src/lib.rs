@@ -5,7 +5,7 @@ mod errors;
 pub use self::errors::{EVRInitError, InitError};
 pub use ovr_overlay_sys as sys;
 
-use self::overlay::IOverlay;
+use self::overlay::OverlayManager;
 
 use lazy_static::lazy_static;
 use std::sync::Mutex;
@@ -49,8 +49,8 @@ impl Context {
         sys::VR_Shutdown()
     }
 
-    pub fn overlay(&self) -> IOverlay<'_> {
-        IOverlay::new(self)
+    pub fn overlay_mngr(&self) -> OverlayManager<'_> {
+        OverlayManager::new(self)
     }
 }
 

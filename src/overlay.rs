@@ -5,11 +5,11 @@ use derive_more::From;
 use std::marker::PhantomData;
 use std::pin::Pin;
 
-pub struct IOverlay<'c> {
+pub struct OverlayManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVROverlay>,
 }
-impl<'c> IOverlay<'c> {
+impl<'c> OverlayManager<'c> {
     pub(super) fn new(_ctx: &'c Context) -> Self {
         let inner = unsafe { Pin::new_unchecked(sys::VROverlay().as_mut::<'c>().unwrap()) };
         Self {
@@ -36,13 +36,17 @@ impl<'c> IOverlay<'c> {
         Ok(OverlayHandle(handle))
     }
 
-    pub fn show_overlay(&mut self, overlay: OverlayHandle) -> Result<(), EVROverlayError> {
-        let err = unsafe { self.inner.as_mut().ShowOverlay(overlay.0) };
-        EVROverlayError::new(err)
-    }
-
-    pub fn hide_overlay(&mut self, overlay: OverlayHandle) -> Result<(), EVROverlayError> {
-        let err = unsafe { self.inner.as_mut().HideOverlay(overlay.0) };
+    pub fn set_visibility(
+        &mut self,
+        overlay: OverlayHandle,
+        is_visible: bool,
+    ) -> Result<(), EVROverlayError> {
+        let pinned = self.inner.as_mut();
+        let err = if is_visible {
+            unsafe { pinned.ShowOverlay(overlay.0) }
+        } else {
+            unsafe { pinned.HideOverlay(overlay.0) }
+        };
         EVROverlayError::new(err)
     }
 
