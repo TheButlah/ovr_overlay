@@ -132,12 +132,17 @@ impl<'c> OverlayManager<'c> {
 
     pub fn tint(&mut self, overlay: OverlayHandle) -> Result<ColorTint, EVROverlayError> {
         let mut tint = ColorTint::default();
-        let err = unsafe {
-            self.inner
-                .as_mut()
-                .GetOverlayColor(overlay.0, &mut tint.r, &mut tint.g, &mut tint.b)
+        unsafe {
+            let err = self.inner.as_mut().GetOverlayColor(
+                overlay.0,
+                &mut tint.r,
+                &mut tint.g,
+                &mut tint.b,
+            );
+            EVROverlayError::new(err)?;
+            let err = self.inner.as_mut().GetOverlayAlpha(overlay.0, &mut tint.a);
+            EVROverlayError::new(err)?
         };
-        EVROverlayError::new(err)?;
         Ok(tint)
     }
 
@@ -146,12 +151,16 @@ impl<'c> OverlayManager<'c> {
         overlay: OverlayHandle,
         tint: ColorTint,
     ) -> Result<(), EVROverlayError> {
-        let err = unsafe {
-            self.inner
+        unsafe {
+            let err = self
+                .inner
                 .as_mut()
-                .SetOverlayColor(overlay.0, tint.r, tint.g, tint.b)
-        };
-        EVROverlayError::new(err)
+                .SetOverlayColor(overlay.0, tint.r, tint.g, tint.b);
+            EVROverlayError::new(err)?;
+            let err = self.inner.as_mut().SetOverlayAlpha(overlay.0, tint.a);
+            EVROverlayError::new(err)?;
+        }
+        Ok(())
     }
 
     pub fn set_image(

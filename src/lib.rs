@@ -60,6 +60,7 @@ pub struct ColorTint {
     pub r: f32,
     pub g: f32,
     pub b: f32,
+    pub a: f32,
 }
 impl Default for ColorTint {
     fn default() -> Self {
@@ -67,6 +68,7 @@ impl Default for ColorTint {
             r: 1.,
             g: 1.,
             b: 1.,
+            a: 1.,
         }
     }
 }
