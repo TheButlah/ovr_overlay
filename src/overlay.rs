@@ -170,17 +170,20 @@ impl<'c> OverlayManager<'c> {
     pub fn set_raw_data(
         &mut self,
         overlay: OverlayHandle,
-        data: Vec<u8>,
+        data: &[u8],
         width: usize,
         height: usize,
         bytes_per_pixel: usize,
     ) -> Result<(), EVROverlayError> {
-        // TODO: Don't leak this in the future, instead deallocate with rust drop
-        let data = data.leak();
         let err = unsafe {
+            let ptr: *const std::ffi::c_void = data.as_ptr().cast();
+            // I think there is a typo in the API, and it actually needs a const
+            // ptr. *IF* this is true, the following line is safe.
+            let ptr = ptr as *mut std::ffi::c_void;
+
             self.inner.as_mut().SetOverlayRaw(
                 overlay.0,
-                data.as_mut_ptr().cast(),
+                ptr.cast(),
                 width as u32,
                 height as u32,
                 bytes_per_pixel as u32,
