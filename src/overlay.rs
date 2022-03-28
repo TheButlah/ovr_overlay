@@ -200,6 +200,30 @@ impl<'c> OverlayManager<'c> {
         };
         EVROverlayError::new(err)
     }
+
+    /// Get aspect ratio, with aspect expressed as width / height.
+    pub fn texel_aspect(&mut self, overlay: OverlayHandle) -> Result<f32, EVROverlayError> {
+        let mut aspect = 0.0;
+        let err = unsafe {
+            self.inner
+                .as_mut()
+                .GetOverlayTexelAspect(overlay.0, &mut aspect)
+        };
+        EVROverlayError::new(err)?;
+        Ok(aspect)
+    }
+
+    /// Set aspect ratio, with aspect expressed as width / height.
+    ///
+    /// Note that too extreme of an aspect ratio will cause an error to be returned.
+    pub fn set_texel_aspect(
+        &mut self,
+        overlay: OverlayHandle,
+        aspect: f32,
+    ) -> Result<(), EVROverlayError> {
+        let err = unsafe { self.inner.as_mut().SetOverlayTexelAspect(overlay.0, aspect) };
+        EVROverlayError::new(err)
+    }
 }
 
 #[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
