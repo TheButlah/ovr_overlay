@@ -20,6 +20,8 @@ include_cpp! {
     generate!("vr::VR_GetVRInitErrorAsSymbol")
     generate_pod!("vr::EVRInitError")
 
+    generate_pod!("vr::ETrackingUniverseOrigin")
+    generate!("vr::HmdMatrix34_t")
 }
 
 //pub use ffi::vr::*;

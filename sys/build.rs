@@ -9,7 +9,8 @@ fn main() {
     let mut b =
         autocxx_build::Builder::new(relative("src/lib.rs"), &[&include_path]).expect_build();
     // arbitrary library name, pick anything
-    b.flag_if_supported("-std=c++14").compile("autocxx-demo");
+    b.flag_if_supported("-std=c++14").compile("foobar");
+    println!("cargo:rerun-if-changed=src/lib.rs");
 
     // Link the C++ libraries
     #[cfg(target_os = "windows")]

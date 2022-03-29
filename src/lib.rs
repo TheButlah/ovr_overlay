@@ -1,4 +1,5 @@
 pub mod overlay;
+pub mod pose;
 
 mod errors;
 

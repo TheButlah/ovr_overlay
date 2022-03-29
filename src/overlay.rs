@@ -1,4 +1,6 @@
 pub use crate::errors::EVROverlayError;
+use crate::pose::Matrix3x4;
+use crate::pose::TrackingUniverseOrigin;
 use crate::{sys, ColorTint, Context};
 
 use derive_more::From;
@@ -222,6 +224,21 @@ impl<'c> OverlayManager<'c> {
         aspect: f32,
     ) -> Result<(), EVROverlayError> {
         let err = unsafe { self.inner.as_mut().SetOverlayTexelAspect(overlay.0, aspect) };
+        EVROverlayError::new(err)
+    }
+
+    pub fn set_transform_absolute(
+        &mut self,
+        overlay: OverlayHandle,
+        origin: TrackingUniverseOrigin,
+        origin_to_overlay: &Matrix3x4,
+    ) -> Result<(), EVROverlayError> {
+        let origin_to_overlay: &sys::HmdMatrix34_t = origin_to_overlay.into();
+        let err = unsafe {
+            self.inner
+                .as_mut()
+                .SetOverlayTransformAbsolute(overlay.0, origin, origin_to_overlay)
+        };
         EVROverlayError::new(err)
     }
 }
