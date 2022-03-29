@@ -245,16 +245,53 @@ impl<'c> OverlayManager<'c> {
     pub fn get_transform_absolute(
         &mut self,
         overlay: OverlayHandle,
-        transform_out: &mut Matrix3x4,
+        origin_to_overlay: &mut Matrix3x4,
     ) -> Result<TrackingUniverseOrigin, EVROverlayError> {
+        // Some random value just to initialize the data
         let mut origin = TrackingUniverseOrigin::TrackingUniverseStanding;
-        let transform_out: &mut sys::HmdMatrix34_t = transform_out.into();
+        let origin_to_overlay: &mut sys::HmdMatrix34_t = origin_to_overlay.into();
         let err = unsafe {
-            self.inner
-                .as_mut()
-                .GetOverlayTransformAbsolute(overlay.0, &mut origin, transform_out)
+            self.inner.as_mut().GetOverlayTransformAbsolute(
+                overlay.0,
+                &mut origin,
+                origin_to_overlay,
+            )
         };
         EVROverlayError::new(err).map(|_| origin)
+    }
+
+    pub fn set_transform_overlay_relatve(
+        &mut self,
+        child_overlay: OverlayHandle,
+        parent_overlay: OverlayHandle,
+        parent_to_child: &Matrix3x4,
+    ) -> Result<(), EVROverlayError> {
+        let parent_to_child: &sys::HmdMatrix34_t = parent_to_child.into();
+        let err = unsafe {
+            self.inner.as_mut().SetOverlayTransformOverlayRelative(
+                child_overlay.0,
+                parent_overlay.0,
+                parent_to_child,
+            )
+        };
+        EVROverlayError::new(err)
+    }
+
+    pub fn get_transform_overlay_relative(
+        &mut self,
+        child_overlay: OverlayHandle,
+        parent_to_child: &mut Matrix3x4,
+    ) -> Result<OverlayHandle, EVROverlayError> {
+        let mut parent_overlay = sys::VROverlayHandle_t::default();
+        let parent_to_child: &mut sys::HmdMatrix34_t = parent_to_child.into();
+        let err = unsafe {
+            self.inner.as_mut().GetOverlayTransformOverlayRelative(
+                child_overlay.0,
+                &mut parent_overlay,
+                parent_to_child,
+            )
+        };
+        EVROverlayError::new(err).map(|_| parent_overlay.into())
     }
 }
 
