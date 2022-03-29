@@ -59,18 +59,30 @@ mod nalgebra_impls {
         }
     }
 
-    impl<RStride, CStride> From<nalgebra::MatrixSlice3x4<'_, f32, RStride, CStride>> for Matrix3x4
+    impl<Storage>
+        From<
+            &nalgebra::Matrix<
+                f32,
+                nalgebra::base::dimension::U3,
+                nalgebra::base::dimension::U4,
+                Storage,
+            >,
+        > for Matrix3x4
     where
-        RStride: nalgebra::base::dimension::Dim,
-        CStride: nalgebra::base::dimension::Dim,
+        Storage: nalgebra::base::storage::Storage<
+            f32,
+            nalgebra::base::dimension::U3,
+            nalgebra::base::dimension::U4,
+        >,
     {
-        fn from(other: nalgebra::MatrixSlice3x4<'_, f32, RStride, CStride>) -> Self {
-            Self(other.transpose().data.0)
-        }
-    }
-
-    impl From<&nalgebra::Matrix3x4<f32>> for Matrix3x4 {
-        fn from(other: &nalgebra::Matrix3x4<f32>) -> Self {
+        fn from(
+            other: &nalgebra::Matrix<
+                f32,
+                nalgebra::base::dimension::U3,
+                nalgebra::base::dimension::U4,
+                Storage,
+            >,
+        ) -> Self {
             Self(other.transpose().data.0)
         }
     }
