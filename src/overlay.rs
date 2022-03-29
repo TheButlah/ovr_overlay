@@ -241,6 +241,21 @@ impl<'c> OverlayManager<'c> {
         };
         EVROverlayError::new(err)
     }
+
+    pub fn get_transform_absolute(
+        &mut self,
+        overlay: OverlayHandle,
+        transform_out: &mut Matrix3x4,
+    ) -> Result<TrackingUniverseOrigin, EVROverlayError> {
+        let mut origin = TrackingUniverseOrigin::TrackingUniverseStanding;
+        let transform_out: &mut sys::HmdMatrix34_t = transform_out.into();
+        let err = unsafe {
+            self.inner
+                .as_mut()
+                .GetOverlayTransformAbsolute(overlay.0, &mut origin, transform_out)
+        };
+        EVROverlayError::new(err).map(|_| origin)
+    }
 }
 
 #[derive(From, Debug, PartialEq, Eq, Clone, Copy)]

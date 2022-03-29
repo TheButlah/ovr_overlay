@@ -73,3 +73,17 @@ impl Default for ColorTint {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn ensure_testing_optional_features() {
+        macro_rules! helper {
+            ($($feature:literal),+ $(,)?) => {
+                $(assert!(cfg!(feature = $feature), "use `cargo test --all-features` instead!"));+
+            };
+        }
+
+        helper!("nalgebra");
+    }
+}
