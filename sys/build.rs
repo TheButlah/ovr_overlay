@@ -6,8 +6,9 @@ fn main() {
     // include path openvr/headers
     let include_path = relative("openvr/headers");
     // This assumes all your C++ bindings are in main.rs
-    let mut b =
-        autocxx_build::Builder::new(relative("src/lib.rs"), &[&include_path]).expect_build();
+    let mut b = autocxx_build::Builder::new(relative("src/lib.rs"), &[&include_path])
+        .build()
+        .expect("Could not autogenerate bindings");
     // arbitrary library name, pick anything
     b.flag_if_supported("-std=c++14").compile("foobar");
     println!("cargo:rerun-if-changed=src/lib.rs");

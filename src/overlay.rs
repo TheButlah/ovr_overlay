@@ -58,7 +58,7 @@ impl<'c> OverlayManager<'c> {
 
     /// Set the curvature of the overlay, with 0 being a quad and 1 being a cylinder.
     /// # Panics
-    /// Panics if `curvature` is not in [0,1]
+    /// Panics if `curvature` is not in `[0,1]`
     pub fn set_curvature(
         &mut self,
         overlay: OverlayHandle,
@@ -88,7 +88,7 @@ impl<'c> OverlayManager<'c> {
 
     /// Sets the opacity of the overlay. `alpha` ranges from 0.0 (transparent) to 1.0 (opaque).
     /// # Panics
-    /// Panics if `alpha` is not in [0,1]
+    /// Panics if `alpha` is not in `[0,1]`
     pub fn set_opacity(
         &mut self,
         overlay: OverlayHandle,
@@ -294,6 +294,8 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err).map(|_| parent_overlay.into())
     }
 }
+unsafe impl Send for OverlayManager<'_> {}
+unsafe impl Sync for OverlayManager<'_> {}
 
 #[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
 pub struct OverlayHandle(pub sys::VROverlayHandle_t);

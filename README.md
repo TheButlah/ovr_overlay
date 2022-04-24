@@ -1,6 +1,6 @@
 # ovr_overlay
 An alternative to the [`openvr`](https://github.com/rust-openvr/rust-openvr)
-crate that uses CXX instead of bindgen, and focuses on providing support for
+crate that uses [`autocxx`](docs.rs/autocxx) instead of bindgen, and focuses on providing support for
 overlays.
 
 ## Goals
