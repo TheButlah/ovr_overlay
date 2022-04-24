@@ -1,3 +1,7 @@
+//! Create a [`Context`] to get started.
+//!
+//! **This library makes no semver guarantees until version 0.1.0 or greater.**
+
 pub mod overlay;
 pub mod pose;
 
