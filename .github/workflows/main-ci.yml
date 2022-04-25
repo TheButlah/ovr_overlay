@@ -1,6 +1,5 @@
 name: Main CI
 on: [pull_request]
-
 jobs:
   fmt:
     name: Formatting

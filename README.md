@@ -26,6 +26,10 @@ spent getting first class support for OpenXR in Rust, as OpenVR is on its way ou
 Unfortunately, that crate is missing all of the overlay functionality, and since I'm
 really just focused on overlays right now, I need an alternative.
 
+## SemVer
+We make no SemVer guarantees until we reach version 0.1.0 or greater. Until then,
+everything and anything may change in a breaking way.
+
 ## Building
 We vendor the `OpenVR` library as a git submodule. So either clone with `--recursive`
 or run `git submodule update --init` after cloning.
