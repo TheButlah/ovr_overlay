@@ -1,10 +1,13 @@
 [package]
 name = "ovr_overlay_sys"
 version = "0.0.0"
+
 description = "Rust low-level bindings for OpenVR overlays"
-edition = "2021"
 authors = ["Ryan Butler <thebutlah@gmail.com>"]
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/TheButlah/ovr_overlay"
+
+edition = "2021"
 rust-version = "1.58"
 
 exclude = [
