@@ -7,6 +7,18 @@ authors = ["Ryan Butler <thebutlah@gmail.com>"]
 license = "MIT OR Apache-2.0"
 rust-version = "1.58"
 
+exclude = [
+    "/openvr",
+
+    "!/openvr/headers/openvr.h",
+    "!/openvr/bin/win64/openvr_api.dll",
+    "!/openvr/lib/win64/openvr_api.lib",
+    "!/openvr/bin/linux64/libopenvr_api.so",
+    "!/openvr/bin/linux32/libopenvr_api.so",
+    "!/openvr/bin/linuxarm64/libopenvr_api.so",
+    "!/openvr/bin/androidarm64/libopenvr_api.so",
+]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
