@@ -22,6 +22,8 @@ include_cpp! {
 
     generate_pod!("vr::ETrackingUniverseOrigin")
     generate!("vr::HmdMatrix34_t")
+
+    generate_pod!("vr::VRTextureBounds_t")
 }
 
 //pub use ffi::vr::*;

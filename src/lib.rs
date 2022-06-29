@@ -78,6 +78,18 @@ impl Default for ColorTint {
     }
 }
 
+pub struct TextureBounds(pub sys::VRTextureBounds_t);
+impl Clone for TextureBounds {
+    fn clone(&self) -> Self {
+        Self(sys::VRTextureBounds_t {
+            uMin: self.0.uMin,
+            vMin: self.0.vMin,
+            uMax: self.0.uMax,
+            vMax: self.0.vMax,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

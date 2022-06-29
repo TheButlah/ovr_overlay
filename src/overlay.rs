@@ -1,6 +1,7 @@
 pub use crate::errors::EVROverlayError;
 use crate::pose::Matrix3x4;
 use crate::pose::TrackingUniverseOrigin;
+use crate::TextureBounds;
 use crate::{sys, ColorTint, Context};
 
 use derive_more::From;
@@ -292,6 +293,19 @@ impl<'c> OverlayManager<'c> {
             )
         };
         EVROverlayError::new(err).map(|_| parent_overlay.into())
+    }
+
+    pub fn set_texture_bounds(
+        &mut self,
+        overlay: OverlayHandle,
+        bounds: &TextureBounds,
+    ) -> Result<(), EVROverlayError> {
+        let err = unsafe {
+            self.inner
+                .as_mut()
+                .SetOverlayTextureBounds(overlay.0, &bounds.0)
+        };
+        EVROverlayError::new(err)
     }
 }
 unsafe impl Send for OverlayManager<'_> {}
