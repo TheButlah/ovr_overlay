@@ -293,6 +293,13 @@ impl<'c> OverlayManager<'c> {
         };
         EVROverlayError::new(err).map(|_| parent_overlay.into())
     }
+
+    pub fn set_texture_bounds(&mut self, overlay: OverlayHandle, bounds: &sys::VRTextureBounds_t) -> Result<(), EVROverlayError> {
+        let err = unsafe {
+            self.inner.as_mut().SetOverlayTextureBounds(overlay.0, bounds)
+        };
+        EVROverlayError::new(err)
+    }
 }
 unsafe impl Send for OverlayManager<'_> {}
 unsafe impl Sync for OverlayManager<'_> {}
