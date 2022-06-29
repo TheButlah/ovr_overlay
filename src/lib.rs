@@ -12,7 +12,9 @@ pub use ovr_overlay_sys as sys;
 
 use self::overlay::OverlayManager;
 
+use derive_more::{From, Into};
 use lazy_static::lazy_static;
+use std::fmt::Debug;
 use std::sync::Mutex;
 
 lazy_static! {
@@ -78,6 +80,7 @@ impl Default for ColorTint {
     }
 }
 
+#[derive(From, Into)]
 pub struct TextureBounds(pub sys::VRTextureBounds_t);
 impl Clone for TextureBounds {
     fn clone(&self) -> Self {
@@ -87,6 +90,16 @@ impl Clone for TextureBounds {
             uMax: self.0.uMax,
             vMax: self.0.vMax,
         })
+    }
+}
+impl Debug for TextureBounds {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TextureBounds")
+            .field("uMin", &self.0.uMin)
+            .field("vMin", &self.0.vMin)
+            .field("uMax", &self.0.uMax)
+            .field("vMax", &self.0.vMax)
+            .finish()
     }
 }
 
