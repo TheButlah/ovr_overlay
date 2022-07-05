@@ -2,6 +2,7 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+pub mod input;
 pub mod overlay;
 pub mod pose;
 
@@ -58,6 +59,10 @@ impl Context {
 
     pub fn overlay_mngr(&self) -> OverlayManager<'_> {
         OverlayManager::new(self)
+    }
+
+    pub fn input_mngr(&self) -> input::InputManager<'_> {
+        input::InputManager::new(self)
     }
 }
 

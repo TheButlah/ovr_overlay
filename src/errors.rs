@@ -59,6 +59,32 @@ impl Display for EVROverlayError {
     }
 }
 
+pub struct EVRInputError(sys::EVRInputError);
+impl EVRInputError {
+    pub fn new(err: sys::EVRInputError) -> Result<(), Self> {
+        if err == sys::EVRInputError::VRInputError_None {
+            Ok(())
+        } else {
+            Err(Self(err))
+        }
+    }
+
+    pub fn description(&self) -> &'static str {
+        "todo"
+    }
+
+    pub fn inner(&self) -> sys::EVRInputError {
+        self.0
+    }
+}
+impl Display for EVRInputError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let num = self.0 as u8;
+        let desc = self.description();
+        write!(f, "EVRInputError({num}): {desc}")
+    }
+}
+
 #[derive(Debug, From, thiserror::Error)]
 pub enum InitError {
     #[error("OpenVR already initialized")]
