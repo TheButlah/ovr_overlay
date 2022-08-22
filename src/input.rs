@@ -1,5 +1,6 @@
 use crate::{errors::EVRInputError, pose, sys, Context};
 
+use derive_more::From;
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
@@ -10,6 +11,15 @@ pub struct InputManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRInput>,
 }
+
+#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+pub struct ActionSetHandle(sys::VRActionSetHandle_t);
+
+#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+pub struct ActionHandle(sys::VRActionHandle_t);
+
+#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+pub struct InputValueHandle(sys::VRInputValueHandle_t);
 
 impl<'c> InputManager<'c> {
     pub(super) fn new(_ctx: &'c Context) -> Self {
@@ -39,7 +49,7 @@ impl<'c> InputManager<'c> {
     pub fn get_action_set_handle(
         &mut self,
         name: &str,
-    ) -> Result<sys::VRActionSetHandle_t, EVRInputError> {
+    ) -> Result<ActionSetHandle, EVRInputError> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
@@ -53,7 +63,7 @@ impl<'c> InputManager<'c> {
     pub fn get_action_set_handle_raw(
         &mut self,
         name: &CStr,
-    ) -> Result<sys::VRActionSetHandle_t, EVRInputError> {
+    ) -> Result<ActionSetHandle, EVRInputError> {
         let mut handle: sys::VRActionSetHandle_t = 0;
 
         let err = unsafe {
@@ -63,13 +73,13 @@ impl<'c> InputManager<'c> {
         };
 
         EVRInputError::new(err)?;
-        Ok(handle)
+        Ok(ActionSetHandle(handle))
     }
 
     pub fn get_action_handle(
         &mut self,
         name: &str,
-    ) -> Result<sys::VRActionHandle_t, EVRInputError> {
+    ) -> Result<ActionHandle, EVRInputError> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
@@ -83,7 +93,7 @@ impl<'c> InputManager<'c> {
     pub fn get_action_handle_raw(
         &mut self,
         name: &CStr,
-    ) -> Result<sys::VRActionHandle_t, EVRInputError> {
+    ) -> Result<ActionHandle, EVRInputError> {
         let mut handle: sys::VRActionHandle_t = 0;
 
         let err = unsafe {
@@ -93,13 +103,13 @@ impl<'c> InputManager<'c> {
         };
 
         EVRInputError::new(err)?;
-        Ok(handle)
+        Ok(ActionHandle(handle))
     }
 
     pub fn get_input_source_handle(
         &mut self,
         name: &str,
-    ) -> Result<sys::VRInputValueHandle_t, EVRInputError> {
+    ) -> Result<InputValueHandle, EVRInputError> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
@@ -113,7 +123,7 @@ impl<'c> InputManager<'c> {
     pub fn get_input_source_handle_raw(
         &mut self,
         name: &CStr,
-    ) -> Result<sys::VRInputValueHandle_t, EVRInputError> {
+    ) -> Result<InputValueHandle, EVRInputError> {
         let mut handle: sys::VRInputValueHandle_t = 0;
 
         let err = unsafe {
@@ -123,7 +133,7 @@ impl<'c> InputManager<'c> {
         };
 
         EVRInputError::new(err)?;
-        Ok(handle)
+        Ok(InputValueHandle(handle))
     }
 
     // Reading action state
@@ -145,16 +155,16 @@ impl<'c> InputManager<'c> {
 
     pub fn get_digital_action_data(
         &mut self,
-        action: sys::VRActionHandle_t,
-        restrict: sys::VRInputValueHandle_t,
+        action: ActionHandle,
+        restrict: InputValueHandle,
     ) -> Result<sys::InputDigitalActionData_t, EVRInputError> {
         let mut data: MaybeUninit<sys::InputDigitalActionData_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetDigitalActionData(
-                action,
+                action.0,
                 data.as_mut_ptr(),
                 std::mem::size_of::<sys::VRActiveActionSet_t>() as u32,
-                restrict,
+                restrict.0,
             )
         };
         EVRInputError::new(err)?;
@@ -163,20 +173,20 @@ impl<'c> InputManager<'c> {
 
     pub fn get_pose_action_data_relative_to_now(
         &mut self,
-        action: sys::VRActionHandle_t,
+        action: ActionHandle,
         universe: pose::TrackingUniverseOrigin,
         seconds_from_now: f32,
-        restrict: sys::VRInputValueHandle_t,
+        restrict: InputValueHandle,
     ) -> Result<sys::InputPoseActionData_t, EVRInputError> {
         let mut data: MaybeUninit<sys::InputPoseActionData_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetPoseActionDataRelativeToNow(
-                action,
+                action.0,
                 universe,
                 seconds_from_now,
                 data.as_mut_ptr(),
                 std::mem::size_of::<sys::InputPoseActionData_t>() as u32,
-                restrict,
+                restrict.0,
             )
         };
 
@@ -190,12 +200,12 @@ impl<'c> InputManager<'c> {
 
     pub fn get_origin_tracked_device_info(
         &mut self,
-        origin: sys::VRInputValueHandle_t,
+        origin: InputValueHandle,
     ) -> Result<sys::InputOriginInfo_t, EVRInputError> {
         let mut data: MaybeUninit<sys::InputOriginInfo_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetOriginTrackedDeviceInfo(
-                origin,
+                origin.0,
                 data.as_mut_ptr(),
                 std::mem::size_of::<sys::InputOriginInfo_t>() as u32,
             )
