@@ -3,10 +3,6 @@ use crate::{errors::EVRInputError, pose, sys, Context};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
-#[cfg(unix)]
-use std::os::unix::prelude::OsStrExt;
-#[cfg(windows)]
-use std::os::windows::prelude::OsStrExt;
 use std::path::Path;
 use std::pin::Pin;
 
@@ -27,7 +23,7 @@ impl<'c> InputManager<'c> {
     // handle management functions
 
     pub fn set_action_manifest(&mut self, path: &Path) -> Result<(), EVRInputError> {
-        let path = if let Ok(s) = CString::new(path.as_os_str().as_bytes()) {
+        let path = if let Ok(s) = CString::new(path.to_string_lossy().as_bytes()) {
             s
         } else {
             return EVRInputError::new(sys::EVRInputError::VRInputError_InvalidParam);
