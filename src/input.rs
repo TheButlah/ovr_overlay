@@ -33,7 +33,7 @@ impl<'c> InputManager<'c> {
         }
     }
 
-    // handle management functions
+    // ---- Handle Management ----
 
     pub fn set_action_manifest(&mut self, path: &Path) -> Result<(), EVRInputError> {
         let path = if let Ok(s) = CString::new(path.to_string_lossy().as_bytes()) {
@@ -138,7 +138,7 @@ impl<'c> InputManager<'c> {
         Ok(InputValueHandle(handle))
     }
 
-    // Reading action state
+    // ---- Read Action State ----
 
     pub fn update_actions(
         &mut self,
@@ -196,7 +196,7 @@ impl<'c> InputManager<'c> {
         Ok(unsafe { data.assume_init() })
     }
 
-    // Action Origins
+    // ---- Action Origins ----
 
     // TODO: GetOriginLocalizedName -- this is gonna want a nice bitset UI
 
