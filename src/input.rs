@@ -1,6 +1,6 @@
 use crate::{errors::EVRInputError, pose, sys, Context};
 
-use derive_more::From;
+use derive_more::{From, Into};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
@@ -12,13 +12,16 @@ pub struct InputManager<'c> {
     inner: Pin<&'c mut sys::IVRInput>,
 }
 
-#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(From, Into, Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(transparent)]
 pub struct ActionSetHandle(sys::VRActionSetHandle_t);
 
-#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(From, Into, Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(transparent)]
 pub struct ActionHandle(sys::VRActionHandle_t);
 
-#[derive(From, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(From, Into, Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(transparent)]
 pub struct InputValueHandle(sys::VRInputValueHandle_t);
 
 impl<'c> InputManager<'c> {

@@ -1,6 +1,6 @@
 use crate::sys;
 
-use derive_more::From;
+use derive_more::{From, Into};
 use std::ffi::CStr;
 use std::fmt::Display;
 
@@ -60,6 +60,8 @@ impl Display for EVROverlayError {
 }
 
 #[cfg(feature = "ovr_input")]
+#[derive(From, Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[repr(transparent)]
 pub struct EVRInputError(sys::EVRInputError);
 
 #[cfg(feature = "ovr_input")]
