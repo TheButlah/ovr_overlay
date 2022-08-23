@@ -56,8 +56,7 @@ impl<'c> InputManager<'c> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
-            return EVRInputError::new(sys::EVRInputError::VRInputError_InvalidParam)
-                .map(|_| unreachable!());
+            return Err(sys::EVRInputError::VRInputError_InvalidParam.into());
         };
 
         self.get_action_set_handle_raw(&name)
