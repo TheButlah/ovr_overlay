@@ -2,6 +2,7 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+#[cfg(feature = "ovr_input")]
 pub mod input;
 pub mod overlay;
 pub mod pose;
@@ -61,6 +62,7 @@ impl Context {
         OverlayManager::new(self)
     }
 
+    #[cfg(feature = "ovr_input")]
     pub fn input_mngr(&self) -> input::InputManager<'_> {
         input::InputManager::new(self)
     }

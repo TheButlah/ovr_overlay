@@ -59,7 +59,10 @@ impl Display for EVROverlayError {
     }
 }
 
+#[cfg(feature = "ovr_input")]
 pub struct EVRInputError(sys::EVRInputError);
+
+#[cfg(feature = "ovr_input")]
 impl EVRInputError {
     pub fn new(err: sys::EVRInputError) -> Result<(), Self> {
         if err == sys::EVRInputError::VRInputError_None {
@@ -77,6 +80,8 @@ impl EVRInputError {
         self.0
     }
 }
+
+#[cfg(feature = "ovr_input")]
 impl Display for EVRInputError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let num = self.0 as u8;
