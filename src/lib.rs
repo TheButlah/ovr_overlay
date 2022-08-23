@@ -14,6 +14,9 @@ pub use ovr_overlay_sys as sys;
 
 use self::overlay::OverlayManager;
 
+#[cfg(feature = "ovr_input")]
+use self::input::InputManager;
+
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
 use std::fmt::Debug;
@@ -63,8 +66,8 @@ impl Context {
     }
 
     #[cfg(feature = "ovr_input")]
-    pub fn input_mngr(&self) -> input::InputManager<'_> {
-        input::InputManager::new(self)
+    pub fn input_mngr(&self) -> InputManager<'_> {
+        InputManager::new(self)
     }
 }
 
