@@ -180,7 +180,7 @@ impl<'c> InputManager<'c> {
             self.inner.as_mut().GetDigitalActionData(
                 action.0,
                 data.as_mut_ptr(),
-                std::mem::size_of::<sys::VRActiveActionSet_t>() as u32,
+                std::mem::size_of::<sys::InputDigitalActionData_t>() as u32,
                 restrict.0,
             )
         };
