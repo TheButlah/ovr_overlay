@@ -72,10 +72,7 @@ impl<'c> InputManager<'c> {
         EVRInputError::new(err)
     }
 
-    pub fn get_action_set_handle(
-        &mut self,
-        name: &str,
-    ) -> Result<ActionSetHandle, EVRInputError> {
+    pub fn get_action_set_handle(&mut self, name: &str) -> Result<ActionSetHandle, EVRInputError> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
@@ -101,10 +98,7 @@ impl<'c> InputManager<'c> {
         Ok(ActionSetHandle(handle))
     }
 
-    pub fn get_action_handle(
-        &mut self,
-        name: &str,
-    ) -> Result<ActionHandle, EVRInputError> {
+    pub fn get_action_handle(&mut self, name: &str) -> Result<ActionHandle, EVRInputError> {
         let name = if let Ok(s) = CString::new(name) {
             s
         } else {
@@ -115,10 +109,7 @@ impl<'c> InputManager<'c> {
         self.get_action_handle_raw(&name)
     }
 
-    pub fn get_action_handle_raw(
-        &mut self,
-        name: &CStr,
-    ) -> Result<ActionHandle, EVRInputError> {
+    pub fn get_action_handle_raw(&mut self, name: &CStr) -> Result<ActionHandle, EVRInputError> {
         let mut handle: sys::VRActionHandle_t = 0;
 
         let err = unsafe {
