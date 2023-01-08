@@ -1,6 +1,7 @@
 use crate::{errors::EVRInputError, pose, sys, Context};
 
 use derive_more::{From, Into};
+use enumset::{EnumSet, EnumSetType, EnumSetTypeWithRepr};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
@@ -47,6 +48,16 @@ impl ToSeconds for &Duration {
     fn to_seconds(self) -> f32 {
         self.as_secs_f32()
     }
+}
+
+#[derive(EnumSetType, Debug)]
+#[enumset(repr = "u32")]
+pub enum InputString {
+    Hand,
+    ControllerType,
+    InputSource,
+    // TODO: openvr allows you to pass a u32 with all bits set to get a string that has all information, current and future.
+    //       is there a good way to represent that with enumset? do we care?
 }
 
 impl<'c> InputManager<'c> {
@@ -202,7 +213,29 @@ impl<'c> InputManager<'c> {
 
     // ---- Action Origins ----
 
-    // TODO: GetOriginLocalizedName -- this is gonna want a nice bitset UI
+    pub fn get_origin_localized_name(
+        &mut self,
+        origin: InputValueHandle,
+        bits: EnumSet<InputString>,
+    ) -> Result<String> {
+        let mut name = vec![0u8; 100];
+        let err = unsafe {
+            self.inner.as_mut().GetOriginLocalizedName(
+                origin.0,
+                name.as_mut_ptr() as *mut i8,
+                name.len() as u32 - 1, // TODO: is there *actually* an off-by-one here?
+                bits.as_repr() as i32,
+            )
+        };
+
+        EVRInputError::new(err)?;
+        Ok(CString::from_vec_with_nul(name)
+            .expect("There should be a null byte left!")
+            // This shouldn't copy
+            .into_string()
+            // This path should only copy once, and only if there is invalid utf8. wish there was an `into_string_lossy`.
+            .unwrap_or_else(|err| err.into_cstring().to_string_lossy().into_owned()))
+    }
 
     pub fn get_origin_tracked_device_info(
         &mut self,
