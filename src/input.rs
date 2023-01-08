@@ -6,6 +6,7 @@ use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::path::Path;
 use std::pin::Pin;
+use std::time::Duration;
 
 pub struct InputManager<'c> {
     ctx: PhantomData<&'c Context>,
@@ -23,6 +24,28 @@ pub struct ActionHandle(sys::VRActionHandle_t);
 #[derive(From, Into, Debug, PartialEq, Eq, Clone, Copy)]
 #[repr(transparent)]
 pub struct InputValueHandle(sys::VRInputValueHandle_t);
+
+pub trait ToSeconds {
+    fn to_seconds(self) -> f32;
+}
+
+impl ToSeconds for f32 {
+    fn to_seconds(self) -> f32 {
+        self
+    }
+}
+
+impl ToSeconds for &f32 {
+    fn to_seconds(self) -> f32 {
+        *self
+    }
+}
+
+impl ToSeconds for &Duration {
+    fn to_seconds(self) -> f32 {
+        self.as_secs_f32()
+    }
+}
 
 impl<'c> InputManager<'c> {
     pub(super) fn new(_ctx: &'c Context) -> Self {
@@ -177,7 +200,7 @@ impl<'c> InputManager<'c> {
         &mut self,
         action: ActionHandle,
         universe: pose::TrackingUniverseOrigin,
-        seconds_from_now: f32,
+        seconds_from_now: impl ToSeconds,
         restrict: InputValueHandle,
     ) -> Result<sys::InputPoseActionData_t, EVRInputError> {
         let mut data: MaybeUninit<sys::InputPoseActionData_t> = MaybeUninit::uninit();
@@ -185,7 +208,7 @@ impl<'c> InputManager<'c> {
             self.inner.as_mut().GetPoseActionDataRelativeToNow(
                 action.0,
                 universe,
-                seconds_from_now,
+                seconds_from_now.to_seconds(),
                 data.as_mut_ptr(),
                 std::mem::size_of::<sys::InputPoseActionData_t>() as u32,
                 restrict.0,
