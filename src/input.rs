@@ -1,7 +1,7 @@
 use crate::{errors::EVRInputError, pose, sys, Context};
 
 use derive_more::{From, Into};
-use enumset::{EnumSet, EnumSetType, EnumSetTypeWithRepr};
+use enumset::{EnumSet, EnumSetType};
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
@@ -25,6 +25,23 @@ pub struct ActionHandle(sys::VRActionHandle_t);
 #[derive(From, Into, Debug, PartialEq, Eq, Clone, Copy)]
 #[repr(transparent)]
 pub struct InputValueHandle(sys::VRInputValueHandle_t);
+
+#[derive(From, Into /*, Debug, PartialEq, Eq, Clone, Copy*/)]
+#[repr(transparent)]
+// TODO: do we want to do something else to forward fields to the sys struct?
+pub struct ActiveActionSet(pub sys::VRActiveActionSet_t);
+
+#[derive(From, Into /*, Debug, PartialEq, Eq, Clone, Copy*/)]
+#[repr(transparent)]
+pub struct DigitalActionData(pub sys::InputDigitalActionData_t);
+
+#[derive(From, Into /*, Debug, PartialEq, Eq, Clone, Copy*/)]
+#[repr(transparent)]
+pub struct PoseActionData(pub sys::InputPoseActionData_t);
+
+#[derive(From, Into /*, Debug, PartialEq, Eq, Clone, Copy*/)]
+#[repr(transparent)]
+pub struct OriginInfo(pub sys::InputOriginInfo_t);
 
 type Result<T> = std::result::Result<T, EVRInputError>;
 
@@ -158,10 +175,12 @@ impl<'c> InputManager<'c> {
 
     // ---- Read Action State ----
 
-    pub fn update_actions(&mut self, sets: &mut [sys::VRActiveActionSet_t]) -> Result<()> {
+    pub fn update_actions(&mut self, sets: &mut [ActiveActionSet]) -> Result<()> {
         let err = unsafe {
             self.inner.as_mut().UpdateActionState(
-                sets.as_mut_ptr(),
+                // this should be fine because of repr(transparent)
+                // TODO: have bytemuck say it's fine or something?
+                sets.as_mut_ptr() as *mut sys::VRActiveActionSet_t,
                 std::mem::size_of::<sys::VRActiveActionSet_t>() as u32,
                 sets.len() as u32,
             )
@@ -174,7 +193,7 @@ impl<'c> InputManager<'c> {
         &mut self,
         action: ActionHandle,
         restrict: InputValueHandle,
-    ) -> Result<sys::InputDigitalActionData_t> {
+    ) -> Result<DigitalActionData> {
         let mut data: MaybeUninit<sys::InputDigitalActionData_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetDigitalActionData(
@@ -185,7 +204,7 @@ impl<'c> InputManager<'c> {
             )
         };
         EVRInputError::new(err)?;
-        Ok(unsafe { data.assume_init() })
+        Ok(DigitalActionData(unsafe { data.assume_init() }))
     }
 
     pub fn get_pose_action_data_relative_to_now(
@@ -194,7 +213,7 @@ impl<'c> InputManager<'c> {
         universe: pose::TrackingUniverseOrigin,
         seconds_from_now: impl ToSeconds,
         restrict: InputValueHandle,
-    ) -> Result<sys::InputPoseActionData_t> {
+    ) -> Result<PoseActionData> {
         let mut data: MaybeUninit<sys::InputPoseActionData_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetPoseActionDataRelativeToNow(
@@ -208,7 +227,7 @@ impl<'c> InputManager<'c> {
         };
 
         EVRInputError::new(err)?;
-        Ok(unsafe { data.assume_init() })
+        Ok(PoseActionData(unsafe { data.assume_init() }))
     }
 
     // ---- Action Origins ----
@@ -240,7 +259,7 @@ impl<'c> InputManager<'c> {
     pub fn get_origin_tracked_device_info(
         &mut self,
         origin: InputValueHandle,
-    ) -> Result<sys::InputOriginInfo_t> {
+    ) -> Result<OriginInfo> {
         let mut data: MaybeUninit<sys::InputOriginInfo_t> = MaybeUninit::uninit();
         let err = unsafe {
             self.inner.as_mut().GetOriginTrackedDeviceInfo(
@@ -251,6 +270,6 @@ impl<'c> InputManager<'c> {
         };
 
         EVRInputError::new(err)?;
-        Ok(unsafe { data.assume_init() })
+        Ok(OriginInfo(unsafe { data.assume_init() }))
     }
 }
