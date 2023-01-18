@@ -1,6 +1,6 @@
 use crate::sys;
 
-use derive_more::From;
+use derive_more::{From, Into};
 use std::ffi::CStr;
 use std::fmt::Display;
 
@@ -56,6 +56,62 @@ impl Display for EVROverlayError {
         let num = self.0 as u8;
         let desc = self.description();
         write!(f, "EVROverlayError({num}): {desc}")
+    }
+}
+
+#[cfg(feature = "ovr_input")]
+#[derive(From, Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[repr(transparent)]
+pub struct EVRInputError(sys::EVRInputError);
+
+#[cfg(feature = "ovr_input")]
+impl EVRInputError {
+    pub fn new(err: sys::EVRInputError) -> Result<(), Self> {
+        if err == sys::EVRInputError::VRInputError_None {
+            Ok(())
+        } else {
+            Err(Self(err))
+        }
+    }
+
+    pub fn description(&self) -> &'static str {
+        use sys::EVRInputError::*;
+        match self.0 {
+            VRInputError_None => "None",
+            VRInputError_NameNotFound => "NameNotFound",
+            VRInputError_WrongType => "WrongType",
+            VRInputError_InvalidHandle => "InvalidHandle",
+            VRInputError_InvalidParam => "InvalidParam",
+            VRInputError_NoSteam => "NoSteam",
+            VRInputError_MaxCapacityReached => "MaxCapacityReached",
+            VRInputError_IPCError => "IPCError",
+            VRInputError_NoActiveActionSet => "NoActiveActionSet",
+            VRInputError_InvalidDevice => "InvalidDevice",
+            VRInputError_InvalidSkeleton => "InvalidSkeleton",
+            VRInputError_InvalidBoneCount => "InvalidBoneCount",
+            VRInputError_InvalidCompressedData => "InvalidCompressedData",
+            VRInputError_NoData => "NoData",
+            VRInputError_BufferTooSmall => "BufferTooSmall",
+            VRInputError_MismatchedActionManifest => "MismatchedActionManifest",
+            VRInputError_MissingSkeletonData => "MissingSkeletonData",
+            VRInputError_InvalidBoneIndex => "InvalidBoneIndex",
+            VRInputError_InvalidPriority => "InvalidPriority",
+            VRInputError_PermissionDenied => "PermissionDenied",
+            VRInputError_InvalidRenderModel => "InvalidRenderModel",
+        }
+    }
+
+    pub fn inner(&self) -> sys::EVRInputError {
+        self.0
+    }
+}
+
+#[cfg(feature = "ovr_input")]
+impl Display for EVRInputError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let num = self.0 as u8;
+        let desc = self.description();
+        write!(f, "EVRInputError({num}): {desc}")
     }
 }
 

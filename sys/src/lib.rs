@@ -24,6 +24,19 @@ include_cpp! {
     generate!("vr::HmdMatrix34_t")
 
     generate_pod!("vr::VRTextureBounds_t")
+
+    // input
+    generate!("vr::IVRInput")
+    generate!("vr::VRInput")
+    generate_pod!("vr::EVRInputError")
+    generate_pod!("vr::VRActionSetHandle_t")
+    generate_pod!("vr::VRActionHandle_t")
+    generate_pod!("vr::VRInputValueHandle_t")
+    generate_pod!("vr::VRActiveActionSet_t")
+    generate_pod!("vr::InputDigitalActionData_t")
+    generate_pod!("vr::TrackedDevicePose_t")
+    generate_pod!("vr::InputPoseActionData_t")
+    generate_pod!("vr::InputOriginInfo_t")
 }
 
 //pub use ffi::vr::*;

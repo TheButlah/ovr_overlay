@@ -12,6 +12,9 @@ rust-version = "1.58"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+ovr_input = []
+
 [dependencies]
 ovr_overlay_sys = { version = "=0.0.0", path = "sys" }
 lazy_static = "1"
@@ -20,6 +23,7 @@ derive_more = "0.99"
 log = "0.4"
 nalgebra = { version = "0.30", optional = true }
 slice-of-array = "0.3"
+enumset = "1.0.12"
 
 
 [workspace]

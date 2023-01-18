@@ -2,6 +2,8 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+#[cfg(feature = "ovr_input")]
+pub mod input;
 pub mod overlay;
 pub mod pose;
 
@@ -11,6 +13,9 @@ pub use self::errors::{EVRInitError, InitError};
 pub use ovr_overlay_sys as sys;
 
 use self::overlay::OverlayManager;
+
+#[cfg(feature = "ovr_input")]
+use self::input::InputManager;
 
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
@@ -58,6 +63,11 @@ impl Context {
 
     pub fn overlay_mngr(&self) -> OverlayManager<'_> {
         OverlayManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_input")]
+    pub fn input_mngr(&self) -> InputManager<'_> {
+        InputManager::new(self)
     }
 }
 
