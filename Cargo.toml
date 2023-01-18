@@ -14,6 +14,7 @@ rust-version = "1.58"
 
 [features]
 ovr_input = []
+ovr_system = []
 
 [dependencies]
 ovr_overlay_sys = { version = "=0.0.0", path = "sys" }

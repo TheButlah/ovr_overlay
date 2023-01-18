@@ -6,6 +6,7 @@
 pub mod input;
 pub mod overlay;
 pub mod pose;
+#[cfg(feature = "ovr_system")]
 pub mod system;
 
 mod errors;
