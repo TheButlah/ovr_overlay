@@ -28,6 +28,7 @@ include_cpp! {
     // input
     generate!("vr::IVRInput")
     generate!("vr::VRInput")
+    generate_pod!("vr::EVRInputError")
     generate_pod!("vr::VRActionSetHandle_t")
     generate_pod!("vr::VRActionHandle_t")
     generate_pod!("vr::VRInputValueHandle_t")

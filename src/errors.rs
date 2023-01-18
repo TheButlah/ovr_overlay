@@ -75,7 +75,30 @@ impl EVRInputError {
     }
 
     pub fn description(&self) -> &'static str {
-        "todo"
+        use sys::EVRInputError::*;
+        match self.0 {
+            VRInputError_None => "None",
+            VRInputError_NameNotFound => "NameNotFound",
+            VRInputError_WrongType => "WrongType",
+            VRInputError_InvalidHandle => "InvalidHandle",
+            VRInputError_InvalidParam => "InvalidParam",
+            VRInputError_NoSteam => "NoSteam",
+            VRInputError_MaxCapacityReached => "MaxCapacityReached",
+            VRInputError_IPCError => "IPCError",
+            VRInputError_NoActiveActionSet => "NoActiveActionSet",
+            VRInputError_InvalidDevice => "InvalidDevice",
+            VRInputError_InvalidSkeleton => "InvalidSkeleton",
+            VRInputError_InvalidBoneCount => "InvalidBoneCount",
+            VRInputError_InvalidCompressedData => "InvalidCompressedData",
+            VRInputError_NoData => "NoData",
+            VRInputError_BufferTooSmall => "BufferTooSmall",
+            VRInputError_MismatchedActionManifest => "MismatchedActionManifest",
+            VRInputError_MissingSkeletonData => "MissingSkeletonData",
+            VRInputError_InvalidBoneIndex => "InvalidBoneIndex",
+            VRInputError_InvalidPriority => "InvalidPriority",
+            VRInputError_PermissionDenied => "PermissionDenied",
+            VRInputError_InvalidRenderModel => "InvalidRenderModel",
+        }
     }
 
     pub fn inner(&self) -> sys::EVRInputError {
