@@ -18,6 +18,8 @@ use self::overlay::OverlayManager;
 
 #[cfg(feature = "ovr_input")]
 use self::input::InputManager;
+#[cfg(feature = "ovr_system")]
+use self::system::SystemManager;
 
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
@@ -70,6 +72,11 @@ impl Context {
     #[cfg(feature = "ovr_input")]
     pub fn input_mngr(&self) -> InputManager<'_> {
         InputManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_system")]
+    pub fn system_mngr(&self) -> SystemManager<'_> {
+        SystemManager::new(self)
     }
 }
 

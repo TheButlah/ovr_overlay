@@ -340,6 +340,14 @@ mod props {
 }
 
 impl<'c> SystemManager<'c> {
+    pub(super) fn new(_ctx: &'c Context) -> Self {
+        let inner = unsafe { Pin::new_unchecked(sys::VRSystem().as_mut::<'c>().unwrap()) };
+        Self {
+            ctx: Default::default(),
+            inner,
+        }
+    }
+
     pub fn get_property<R: PropertyType, T: Property<R>>(
         &mut self,
         index: sys::TrackedDeviceIndex_t,
