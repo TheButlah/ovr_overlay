@@ -1,8 +1,10 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context};
 
+use std::ffi::CString;
 use std::marker::PhantomData;
 use std::pin::Pin;
+use std::ptr::{null, null_mut};
 
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
@@ -11,7 +13,7 @@ pub struct SystemManager<'c> {
 
 mod sealed {
     pub trait SealedPropertyType {}
-    pub trait SealedProperty {}
+    pub trait SealedProperty<T: SealedPropertyType> {}
 }
 
 use sealed::*;
@@ -49,6 +51,7 @@ impl_property_type!(f32, GetFloatTrackedDeviceProperty);
 impl_property_type!(i32, GetInt32TrackedDeviceProperty);
 impl_property_type!(u64, GetUint64TrackedDeviceProperty);
 
+// thought: other matrix types?
 impl sealed::SealedPropertyType for crate::pose::Matrix3x4 {}
 impl PropertyType for crate::pose::Matrix3x4 {
     fn get(
@@ -68,17 +71,65 @@ impl PropertyType for crate::pose::Matrix3x4 {
     }
 }
 
+impl sealed::SealedPropertyType for CString {}
+impl PropertyType for CString {
+    fn get(
+        index: sys::TrackedDeviceIndex_t,
+        system: &mut SystemManager,
+        prop: sys::ETrackedDeviceProperty,
+    ) -> PropResult<Self> {
+        let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
+        let len = unsafe {
+            system.inner.as_mut().GetStringTrackedDeviceProperty(
+                index,
+                prop,
+                null_mut(),
+                0,
+                &mut err,
+            )
+        };
+        ETrackedPropertyError::new(err)?;
+        let mut data = vec![0; len as usize];
+        let _len = unsafe {
+            system.inner.as_mut().GetStringTrackedDeviceProperty(
+                index,
+                prop,
+                data.as_mut_ptr() as *mut i8,
+                len,
+                &mut err,
+            )
+        };
+        ETrackedPropertyError::new(err)?;
+
+        Ok(CString::from_vec_with_nul(data).expect("missing nul byte from openvr!"))
+    }
+}
+
+impl sealed::SealedPropertyType for String {}
+impl PropertyType for String {
+    fn get(
+        index: sys::TrackedDeviceIndex_t,
+        system: &mut SystemManager,
+        prop: sys::ETrackedDeviceProperty,
+    ) -> PropResult<Self> {
+        // might want to make a helper function for this concept
+        // or be fancy like this: <https://www.reddit.com/r/rust/comments/7n1oz2/comment/drzqn9d/?utm_source=share&utm_medium=web2x&context=3>
+        CString::get(index, system, prop).map(|s| {
+            s.into_string()
+                .unwrap_or_else(|s| s.into_cstring().to_string_lossy().into_owned())
+        })
+    }
+}
+
 // TODO: array and string. I don't feel like dealing with them right now.
 
-pub trait Property: SealedProperty + Into<sys::ETrackedDeviceProperty> {
-    type Output: PropertyType;
-
+pub trait Property<Output: PropertyType>: SealedProperty<Output> + Into<sys::ETrackedDeviceProperty> {
     fn get(
         self,
         index: sys::TrackedDeviceIndex_t,
         system: &mut SystemManager,
-    ) -> PropResult<Self::Output> {
-        Self::Output::get(index, system, self.into())
+    ) -> PropResult<Output> {
+        Output::get(index, system, self.into())
     }
 }
 
@@ -86,20 +137,6 @@ mod props {
     use crate::pose::Matrix3x4;
 
     use super::*;
-    macro_rules! impl_property {
-        ($ty:ty, $enum:ty) => {
-            impl SealedProperty for $enum {}
-            impl From<$enum> for sys::ETrackedDeviceProperty {
-                fn from(t: $enum) -> Self {
-                    unsafe { std::mem::transmute(t) } // TODO: Into+FromPrimitive?
-                }
-            }
-            impl Property for $enum {
-                type Output = $ty;
-            }
-            pub use $enum::*;
-        };
-    }
 
     // first s/^\s+Prop_[a-zA-Z0-9_]+_(?!Int32)[a-zA-Z0-9]+ .*\n//
     // then s/Prop_([a-zA-Z0-9_]+)_Bool/$1/
@@ -280,19 +317,34 @@ mod props {
     // TODO: Arrays
     // a lot of the array types are one-offs so maybe we could use empty structs for them?
 
-    impl_property!(bool, Bool);
-    impl_property!(i32, I32);
-    impl_property!(u64, U64);
-    impl_property!(Matrix3x4, Matrix);
-    //impl_property!(std::string::String, String);
+    macro_rules! impl_property {
+        ($enum:ty, $($ty:ty),+) => {
+            pub use $enum::*;
+            impl From<$enum> for sys::ETrackedDeviceProperty {
+                fn from(t: $enum) -> Self {
+                    unsafe { std::mem::transmute(t) } // TODO: Into+FromPrimitive?
+                }
+            }
+            $(
+                impl SealedProperty<$ty> for $enum {}
+                impl Property<$ty> for $enum {}
+            )+
+        }
+    }
+
+    impl_property!(Bool, bool);
+    impl_property!(I32, i32);
+    impl_property!(U64, u64);
+    impl_property!(Matrix, Matrix3x4);
+    impl_property!(self::String, std::string::String, CString);
 }
 
 impl<'c> SystemManager<'c> {
-    pub fn get_property<T: Property>(
+    pub fn get_property<R: PropertyType, T: Property<R>>(
         &mut self,
         index: sys::TrackedDeviceIndex_t,
         prop: T,
-    ) -> PropResult<<T as Property>::Output> {
+    ) -> PropResult<R> {
         prop.get(index, self)
     }
 
@@ -310,9 +362,11 @@ mod test {
     use super::*;
     fn test(mut system: SystemManager) {
         let bootloader_version = system.get_property(0, props::DisplayBootloaderVersion);
-        let display_version: PropResult<u64> = system.get_property_sys(
+        let display_version: u64 = system.get_property_sys(
             0,
             sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
-        );
+        ).unwrap();
+        let gc_image_string: String = system.get_property(0, props::DisplayGCImage).unwrap();
+        let gc_image_cstring: CString = system.get_property(0, props::DisplayGCImage).unwrap();
     }
 }
