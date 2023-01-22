@@ -5,6 +5,12 @@ use autocxx::prelude::*; // use all the main autocxx functions
 include_cpp! {
     #include "openvr.h"
 
+    // TrackedDeviceIndex_t constants
+    generate!("vr::k_unTrackedDeviceIndex_Hmd")
+    generate!("vr::k_unMaxTrackedDeviceCount")
+    generate!("vr::k_unTrackedDeviceIndexOther")
+    generate!("vr::k_unTrackedDeviceIndexInvalid")
+
     generate!("vr::VR_Init")
     generate_pod!("vr::EVRApplicationType")
     generate!("vr::VR_Shutdown")

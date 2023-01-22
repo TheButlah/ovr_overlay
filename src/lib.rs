@@ -113,6 +113,34 @@ impl Debug for TextureBounds {
     }
 }
 
+#[derive(Clone, Copy, From, Into)]
+#[repr(transparent)]
+pub struct TrackedDeviceIndex(pub sys::TrackedDeviceIndex_t);
+impl TrackedDeviceIndex {
+    pub const fn new(index: sys::TrackedDeviceIndex_t) -> Option<Self> {
+        // something something custom niche? meh.
+        if index == sys::k_unTrackedDeviceIndexInvalid {
+            // Is this ever going to come up as a successful result?
+            None
+        } else {
+            Some(Self(index))
+        }
+    }
+
+    pub const fn hmd() -> Self {
+        Self(sys::k_unTrackedDeviceIndex_Hmd)
+    }
+
+    pub const fn max() -> usize {
+        sys::k_unMaxTrackedDeviceCount as usize
+    }
+
+    // ¯\_(ツ)_/¯
+    pub const fn is_other(&self) -> bool {
+        self.0 == sys::k_unTrackedDeviceIndexOther
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
