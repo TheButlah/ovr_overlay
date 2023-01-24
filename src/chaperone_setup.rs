@@ -1,14 +1,9 @@
-use crate::{errors::EVRInputError, pose, sys, Context};
+use crate::{sys, Context};
 
-use derive_more::{From, Into};
-use enumset::{EnumSet, EnumSetType};
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::marker::PhantomData;
-use std::mem::MaybeUninit;
-use std::path::Path;
 use std::pin::Pin;
 use std::ptr::null_mut;
-use std::time::Duration;
 
 pub struct ChaperoneSetupManager<'c> {
     ctx: PhantomData<&'c Context>,
