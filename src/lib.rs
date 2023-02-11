@@ -119,7 +119,7 @@ pub struct TrackedDeviceIndex(pub sys::TrackedDeviceIndex_t);
 impl TrackedDeviceIndex {
     pub const fn new(index: sys::TrackedDeviceIndex_t) -> Result<Self, ()> {
         if index == sys::k_unTrackedDeviceIndexInvalid {
-            // Is this ever going to come up from an otherwise successful result?
+            // TODO: Is this ever going to come up from an otherwise successful result?
             Err(())
         } else {
             Ok(Self(index))
