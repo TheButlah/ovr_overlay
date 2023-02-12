@@ -261,7 +261,7 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err).map(|_| origin)
     }
 
-    pub fn set_transform_overlay_tracked_device_relative(
+    pub fn set_transform_tracked_device_relative(
         &mut self,
         overlay: OverlayHandle,
         index: sys::TrackedDeviceIndex_t,
@@ -269,14 +269,14 @@ impl<'c> OverlayManager<'c> {
     ) -> Result<(), EVROverlayError> {
         let device_to_overlay: &sys::HmdMatrix34_t = device_to_overlay.into();
         let err = unsafe {
-            self.inner.as_mut().SetOverlayTransformTrackedDeviceRelative(overlay.0, index, device_to_overlay)
+            self.inner
+                .as_mut()
+                .SetOverlayTransformTrackedDeviceRelative(overlay.0, index, device_to_overlay)
         };
         EVROverlayError::new(err)
     }
 
-    /** Gets the transform if it is relative to a tracked device. Returns an error if the transform is some other type. */
-    //virtual EVROverlayError GetOverlayTransformTrackedDeviceRelative( VROverlayHandle_t ulOverlayHandle, TrackedDeviceIndex_t *punTrackedDevice, HmdMatrix34_t *pmatTrackedDeviceToOverlayTransform ) = 0;
-    pub fn get_transform_overlay_tracked_device_relative(
+    pub fn get_transform_tracked_device_relative(
         &mut self,
         overlay: OverlayHandle,
         device_to_overlay: &mut Matrix3x4,
@@ -284,15 +284,12 @@ impl<'c> OverlayManager<'c> {
         let mut index = sys::TrackedDeviceIndex_t::default();
         let device_to_overlay: &mut sys::HmdMatrix34_t = device_to_overlay.into();
         let err = unsafe {
-            self.inner.as_mut().GetOverlayTransformTrackedDeviceRelative(
-                overlay.0,
-                &mut index,
-                device_to_overlay,
-            )
+            self.inner
+                .as_mut()
+                .GetOverlayTransformTrackedDeviceRelative(overlay.0, &mut index, device_to_overlay)
         };
         EVROverlayError::new(err).map(|_| index)
     }
-
 
     pub fn set_transform_overlay_relatve(
         &mut self,
