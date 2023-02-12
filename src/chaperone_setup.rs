@@ -22,6 +22,7 @@ impl<'c> ChaperoneSetupManager<'c> {
     // TODO: this outputs json, could we pass it directly to something that does json?
     pub fn export_live_to_buffer(&mut self) -> Option<CString> {
         let mut len = 0u32;
+        // Passing null pointer here means it will merely write to the length parameter.
         let res = unsafe { self.inner.as_mut().ExportLiveToBuffer(null_mut(), &mut len) };
         if !res || len == 0 {
             return None;
