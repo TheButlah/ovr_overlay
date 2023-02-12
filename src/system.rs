@@ -131,7 +131,7 @@ pub trait Property<Output: PropertyType>:
     }
 }
 
-mod props {
+pub mod props {
     use crate::pose::Matrix3x4;
 
     use super::*;
