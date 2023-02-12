@@ -302,7 +302,10 @@ impl<'c> OverlayManager<'c> {
         };
         EVROverlayError::new(err)?;
         // TODO: is the error ever really going to be delayed to here? (Can we successfully return an invalid handle?)
-        TrackedDeviceIndex::new(index).or(EVROverlayError::new(sys::EVROverlayError::VROverlayError_RequestFailed).map(|_| unreachable!()))
+        TrackedDeviceIndex::new(index).or(EVROverlayError::new(
+            sys::EVROverlayError::VROverlayError_RequestFailed,
+        )
+        .map(|_| unreachable!()))
     }
 
     /// Sets the transform for this overlay, relative to another overlay.
