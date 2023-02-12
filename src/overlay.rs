@@ -2,7 +2,7 @@ pub use crate::errors::EVROverlayError;
 use crate::pose::Matrix3x4;
 use crate::pose::TrackingUniverseOrigin;
 use crate::TextureBounds;
-use crate::{sys, ColorTint, Context};
+use crate::{sys, ColorTint, Context, TrackedDeviceIndex};
 
 use derive_more::From;
 use std::marker::PhantomData;
@@ -273,14 +273,14 @@ impl<'c> OverlayManager<'c> {
     pub fn set_transform_tracked_device_relative(
         &mut self,
         overlay: OverlayHandle,
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         device_to_overlay: &Matrix3x4,
     ) -> Result<(), EVROverlayError> {
         let device_to_overlay: &sys::HmdMatrix34_t = device_to_overlay.into();
         let err = unsafe {
             self.inner
                 .as_mut()
-                .SetOverlayTransformTrackedDeviceRelative(overlay.0, index, device_to_overlay)
+                .SetOverlayTransformTrackedDeviceRelative(overlay.0, index.0, device_to_overlay)
         };
         EVROverlayError::new(err)
     }
@@ -292,7 +292,7 @@ impl<'c> OverlayManager<'c> {
         &mut self,
         overlay: OverlayHandle,
         device_to_overlay: &mut Matrix3x4,
-    ) -> Result<sys::TrackedDeviceIndex_t, EVROverlayError> {
+    ) -> Result<TrackedDeviceIndex, EVROverlayError> {
         let mut index = sys::TrackedDeviceIndex_t::default();
         let device_to_overlay: &mut sys::HmdMatrix34_t = device_to_overlay.into();
         let err = unsafe {
@@ -300,7 +300,9 @@ impl<'c> OverlayManager<'c> {
                 .as_mut()
                 .GetOverlayTransformTrackedDeviceRelative(overlay.0, &mut index, device_to_overlay)
         };
-        EVROverlayError::new(err).map(|_| index)
+        EVROverlayError::new(err)?;
+        // TODO: is the error ever really going to be delayed to here? (Can we successfully return an invalid handle?)
+        TrackedDeviceIndex::new(index).or(EVROverlayError::new(sys::EVROverlayError::VROverlayError_RequestFailed).map(|_| unreachable!()))
     }
 
     /// Sets the transform for this overlay, relative to another overlay.
