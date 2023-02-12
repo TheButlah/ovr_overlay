@@ -1,5 +1,5 @@
 use crate::errors::ETrackedPropertyError;
-use crate::{sys, Context};
+use crate::{sys, Context, TrackedDeviceIndex};
 
 use std::ffi::CString;
 use std::marker::PhantomData;
@@ -22,7 +22,7 @@ type PropResult<T> = std::result::Result<T, ETrackedPropertyError>;
 
 pub trait PropertyType: SealedPropertyType + Sized {
     fn get(
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         system: &mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self>;
@@ -33,12 +33,12 @@ macro_rules! impl_property_type {
         impl SealedPropertyType for $ty {}
         impl PropertyType for $ty {
             fn get(
-                index: sys::TrackedDeviceIndex_t,
+                index: TrackedDeviceIndex,
                 system: &mut SystemManager,
                 prop: sys::ETrackedDeviceProperty,
             ) -> PropResult<Self> {
                 let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
-                let res = unsafe { system.inner.as_mut().$method(index, prop, &mut err) };
+                let res = unsafe { system.inner.as_mut().$method(index.0, prop, &mut err) };
                 ETrackedPropertyError::new(err)?;
                 Ok(res)
             }
@@ -55,7 +55,7 @@ impl_property_type!(u64, GetUint64TrackedDeviceProperty);
 impl sealed::SealedPropertyType for crate::pose::Matrix3x4 {}
 impl PropertyType for crate::pose::Matrix3x4 {
     fn get(
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         system: &mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self> {
@@ -64,7 +64,7 @@ impl PropertyType for crate::pose::Matrix3x4 {
             system
                 .inner
                 .as_mut()
-                .GetMatrix34TrackedDeviceProperty(index, prop, &mut err)
+                .GetMatrix34TrackedDeviceProperty(index.0, prop, &mut err)
         };
         ETrackedPropertyError::new(err)?;
         Ok(res.into())
@@ -74,14 +74,14 @@ impl PropertyType for crate::pose::Matrix3x4 {
 impl sealed::SealedPropertyType for CString {}
 impl PropertyType for CString {
     fn get(
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         system: &mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self> {
         let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
         let len = unsafe {
             system.inner.as_mut().GetStringTrackedDeviceProperty(
-                index,
+                index.0,
                 prop,
                 null_mut(),
                 0,
@@ -108,7 +108,7 @@ impl PropertyType for CString {
 impl sealed::SealedPropertyType for String {}
 impl PropertyType for String {
     fn get(
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         system: &mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self> {
@@ -123,12 +123,10 @@ impl PropertyType for String {
 
 // TODO: array and string. I don't feel like dealing with them right now.
 
-pub trait Property<Output: PropertyType>: SealedProperty<Output> + Into<sys::ETrackedDeviceProperty> {
-    fn get(
-        self,
-        index: sys::TrackedDeviceIndex_t,
-        system: &mut SystemManager,
-    ) -> PropResult<Output> {
+pub trait Property<Output: PropertyType>:
+    SealedProperty<Output> + Into<sys::ETrackedDeviceProperty>
+{
+    fn get(self, index: TrackedDeviceIndex, system: &mut SystemManager) -> PropResult<Output> {
         Output::get(index, system, self.into())
     }
 }
@@ -350,7 +348,7 @@ impl<'c> SystemManager<'c> {
 
     pub fn get_property<R: PropertyType, T: Property<R>>(
         &mut self,
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         prop: T,
     ) -> PropResult<R> {
         prop.get(index, self)
@@ -358,7 +356,7 @@ impl<'c> SystemManager<'c> {
 
     pub fn get_property_sys<T: PropertyType>(
         &mut self,
-        index: sys::TrackedDeviceIndex_t,
+        index: TrackedDeviceIndex,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<T> {
         T::get(index, self, prop)
@@ -370,11 +368,17 @@ mod test {
     use super::*;
     fn test(mut system: SystemManager) {
         let bootloader_version = system.get_property(0, props::DisplayBootloaderVersion);
-        let display_version: u64 = system.get_property_sys(
-            0,
-            sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
-        ).unwrap();
-        let gc_image_string: String = system.get_property(0, props::DisplayGCImage).unwrap();
-        let gc_image_cstring: CString = system.get_property(0, props::DisplayGCImage).unwrap();
+        let display_version: u64 = system
+            .get_property_sys(
+                TrackedDeviceIndex(0),
+                sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
+            )
+            .unwrap();
+        let gc_image_string: String = system
+            .get_property(TrackedDeviceIndex(0), props::DisplayGCImage)
+            .unwrap();
+        let gc_image_cstring: CString = system
+            .get_property(TrackedDeviceIndex(0), props::DisplayGCImage)
+            .unwrap();
     }
 }
