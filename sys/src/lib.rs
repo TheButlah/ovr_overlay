@@ -24,6 +24,9 @@ include_cpp! {
     generate_pod!("vr::EVROverlayError")
     generate_pod!("vr::VROverlayHandle_t")
 
+    generate!("vr::IVRChaperoneSetup")
+    generate!("vr::VRChaperoneSetup")
+
     generate!("vr::VR_GetVRInitErrorAsSymbol")
     generate_pod!("vr::EVRInitError")
 

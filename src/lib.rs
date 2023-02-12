@@ -2,6 +2,8 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+#[cfg(feature = "ovr_chaperone_setup")]
+pub mod chaperone_setup;
 #[cfg(feature = "ovr_input")]
 pub mod input;
 pub mod overlay;
@@ -14,6 +16,8 @@ pub use ovr_overlay_sys as sys;
 
 use self::overlay::OverlayManager;
 
+#[cfg(feature = "ovr_chaperone_setup")]
+use self::chaperone_setup::ChaperoneSetupManager;
 #[cfg(feature = "ovr_input")]
 use self::input::InputManager;
 
@@ -63,6 +67,11 @@ impl Context {
 
     pub fn overlay_mngr(&self) -> OverlayManager<'_> {
         OverlayManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_chaperone_setup")]
+    pub fn chaperone_setup_mngr(&self) -> ChaperoneSetupManager<'_> {
+        ChaperoneSetupManager::new(self)
     }
 
     #[cfg(feature = "ovr_input")]
