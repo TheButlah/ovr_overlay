@@ -136,10 +136,10 @@ impl TrackedDeviceIndex {
     }
 
     /// Device index for the HMD
-    const HMD: Self = Self(sys::k_unTrackedDeviceIndex_Hmd);
+    pub const HMD: Self = Self(sys::k_unTrackedDeviceIndex_Hmd);
 
     /// Maximum number of Tracked Devices
-    const MAX: usize = sys::k_unMaxTrackedDeviceCount as usize;
+    pub const MAX: usize = sys::k_unMaxTrackedDeviceCount as usize;
 
     // Please open an issue on the github repository if you need this.
     // pub const fn is_other(&self) -> bool {
