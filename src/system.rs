@@ -92,7 +92,7 @@ impl PropertyType for CString {
         let mut data = vec![0; len as usize];
         let _len = unsafe {
             system.inner.as_mut().GetStringTrackedDeviceProperty(
-                index,
+                index.0,
                 prop,
                 data.as_mut_ptr() as *mut i8,
                 len,
