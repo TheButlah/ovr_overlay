@@ -228,6 +228,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err)
     }
 
+    /// Sets an absolute transform for this overlay.
+    ///
+    /// Wrapper around SetOverlayTransformAbsolute.
     pub fn set_transform_absolute(
         &mut self,
         overlay: OverlayHandle,
@@ -243,6 +246,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err)
     }
 
+    /// Gets the absolute transform for this overlay.
+    ///
+    /// Wrapper around GetOverlayTransformAbsolute.
     pub fn get_transform_absolute(
         &mut self,
         overlay: OverlayHandle,
@@ -261,6 +267,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err).map(|_| origin)
     }
 
+    /// Sets the transform for this overlay, relative to a tracked device.
+    ///
+    /// Wrapper around SetOverlayTransformTrackedDeviceRelative.
     pub fn set_transform_tracked_device_relative(
         &mut self,
         overlay: OverlayHandle,
@@ -276,6 +285,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err)
     }
 
+    /// Gets the transform for this overlay, relative to a tracked device.
+    ///
+    /// Wrapper around GetOverlayTransformTrackedDeviceRelative.
     pub fn get_transform_tracked_device_relative(
         &mut self,
         overlay: OverlayHandle,
@@ -291,6 +303,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err).map(|_| index)
     }
 
+    /// Sets the transform for this overlay, relative to another overlay.
+    ///
+    /// Wrapper around SetOverlayTransformOverlayRelative.
     pub fn set_transform_overlay_relatve(
         &mut self,
         child_overlay: OverlayHandle,
@@ -308,6 +323,9 @@ impl<'c> OverlayManager<'c> {
         EVROverlayError::new(err)
     }
 
+    /// Gets the transform for this overlay, relative to another overlay.
+    ///
+    /// Wrapper around GetOverlayTransformOverlayRelative.
     pub fn get_transform_overlay_relative(
         &mut self,
         child_overlay: OverlayHandle,
