@@ -177,7 +177,6 @@ mod props {
         Hmd_SupportsMicMonitoring = 2103,
         Audio_SupportsDualSpeakerAndJackOutput = 2303,
         CanWirelessIdentify = 4007,
-        //Prop_ParentContainer = 5151,
         HasDisplayComponent = 6002,
         HasControllerComponent = 6003,
         HasCameraComponent = 6004,
@@ -221,7 +220,6 @@ mod props {
         Axis4Type = 3006,
         ControllerRoleHint = 3007,
         Nonce = 4008,
-        //Prop_ParentContainer = 5151,
         ControllerHandSelectionPriority = 7002,
     }
 
@@ -249,7 +247,6 @@ mod props {
         ImageBridgeFirmwareVersion = 2062,
         AdditionalRadioFeatures = 2070,
         SupportedButtons = 3001,
-        //Prop_ParentContainer = 5151,
         OverrideContainer = 5152,
     }
 
@@ -306,14 +303,19 @@ mod props {
         NamedIconPathDeviceStandby = 5007,
         NamedIconPathDeviceAlertLow = 5008,
         NamedIconPathDeviceStandbyAlert = 5009,
-        // Prop_ParentContainer = 5151,
         UserConfigPath = 6000,
         InstallPath = 6001,
         ControllerType = 7000,
     }
 
-    // TODO: Arrays
-    // a lot of the array types are one-offs so maybe we could use empty structs for them?
+    // TODO: The following properties are not included here yet:
+    //  - Prop_ParentContainer (no type mentioned, but is supposed to be opaque to us anyway)
+    // The rest are arrays
+    //  - Prop_CameraToHeadTransforms_Matrix34_Array
+    //  - Prop_CameraWhiteBalance_Vector4_Array
+    //  - Prop_CameraDistortionFunction_Int32_Array
+    //  - Prop_CameraDistortionCoefficients_Float_Array
+    //  - Prop_DisplayAvailableFrameRates_Float_Array
 
     macro_rules! impl_property {
         ($enum:ty, $($ty:ty),+) => {
