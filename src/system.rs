@@ -139,6 +139,8 @@ impl<'c> SystemManager<'c> {
         T::get(index, self, prop)
     }
 }
+unsafe impl Send for SystemManager<'_> {}
+unsafe impl Sync for SystemManager<'_> {}
 
 #[cfg(test)]
 mod test {
