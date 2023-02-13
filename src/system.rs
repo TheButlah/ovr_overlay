@@ -4,7 +4,7 @@ use crate::{sys, Context, TrackedDeviceIndex};
 use std::ffi::CString;
 use std::marker::PhantomData;
 use std::pin::Pin;
-use std::ptr::{null, null_mut};
+use std::ptr::null_mut;
 
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
@@ -139,6 +139,7 @@ pub mod props {
     // first s/^\s+Prop_[a-zA-Z0-9_]+_(?!Int32)[a-zA-Z0-9]+ .*\n//
     // then s/Prop_([a-zA-Z0-9_]+)_Bool/$1/
     #[repr(i32)]
+    #[allow(non_camel_case_types)]
     pub enum Bool {
         WillDriftInYaw = 1004,
         DeviceIsWireless = 1010,
@@ -186,6 +187,7 @@ pub mod props {
     }
 
     #[repr(i32)]
+    #[allow(non_camel_case_types)]
     pub enum I32 {
         DeviceClass = 1029,
         NumCameras = 1039,
@@ -224,6 +226,7 @@ pub mod props {
     }
 
     #[repr(i32)]
+    #[allow(non_camel_case_types)]
     pub enum U64 {
         HardwareRevision = 1017,
         FirmwareVersion = 1018,
@@ -251,6 +254,7 @@ pub mod props {
     }
 
     #[repr(i32)]
+    #[allow(non_camel_case_types)]
     pub enum Matrix {
         StatusDisplayTransform = 1013,
         CameraToHeadTransform = 2016,
@@ -258,6 +262,7 @@ pub mod props {
     }
 
     #[repr(i32)]
+    #[allow(non_camel_case_types)]
     pub enum String {
         TrackingSystemName = 1000,
         ModelNumber = 1001,
@@ -368,19 +373,20 @@ impl<'c> SystemManager<'c> {
 #[cfg(test)]
 mod test {
     use super::*;
-    fn test(mut system: SystemManager) {
-        let bootloader_version = system.get_property(0, props::DisplayBootloaderVersion);
-        let display_version: u64 = system
+    fn _compile_test(mut system: SystemManager) {
+        let _bootloader_version =
+            system.get_property(TrackedDeviceIndex::HMD, props::DisplayBootloaderVersion);
+        let _display_version: u64 = system
             .get_property_sys(
-                TrackedDeviceIndex(0),
+                TrackedDeviceIndex::HMD,
                 sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
             )
             .unwrap();
-        let gc_image_string: String = system
-            .get_property(TrackedDeviceIndex(0), props::DisplayGCImage)
+        let _gc_image_string: String = system
+            .get_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
             .unwrap();
-        let gc_image_cstring: CString = system
-            .get_property(TrackedDeviceIndex(0), props::DisplayGCImage)
+        let _gc_image_cstring: CString = system
+            .get_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
             .unwrap();
     }
 }
