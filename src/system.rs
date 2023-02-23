@@ -32,7 +32,7 @@ pub trait TrackedDeviceProperty: private::Sealed + Sized {
 macro_rules! impl_property_type {
     ($ty:ty, $method:ident) => {
         impl private::Sealed for $ty {}
-        impl TrackedDevicePropertyValue for $ty {
+        impl TrackedDeviceProperty for $ty {
             fn get(
                 index: TrackedDeviceIndex,
                 system: &mut SystemManager,
