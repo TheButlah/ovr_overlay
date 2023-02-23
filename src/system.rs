@@ -9,7 +9,6 @@ use std::ptr::null_mut;
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRSystem>,
-    string_buf: Vec<u8>,
 }
 
 mod private {
