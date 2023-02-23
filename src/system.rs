@@ -1,7 +1,7 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context, TrackedDeviceIndex};
 
-use std::ffi::{CString, CStr};
+use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::ptr::null_mut;
@@ -15,7 +15,6 @@ mod private {
     pub trait Sealed {}
 }
 
-
 type PropResult<T> = Result<T, ETrackedPropertyError>;
 
 /// Trait implemented by types that represent storage types of properties.
@@ -26,7 +25,6 @@ pub trait TrackedDeviceProperty: private::Sealed + Sized {
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self>;
 }
-
 
 macro_rules! impl_property_type {
     ($ty:ty, $method:ident) => {

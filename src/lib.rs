@@ -3,16 +3,6 @@
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 #![allow(clippy::result_unit_err)]
 
-mod errors;
-
-use derive_more::{From, Into};
-use lazy_static::lazy_static;
-use std::fmt::Debug;
-use std::sync::Mutex;
-
-pub use self::errors::{EVRInitError, InitError};
-pub use ovr_overlay_sys as sys;
-
 pub mod overlay;
 use self::overlay::OverlayManager;
 
@@ -39,6 +29,14 @@ pub mod applications;
 use self::applications::ApplicationsManager;
 
 mod errors;
+
+pub use self::errors::{EVRInitError, InitError};
+pub use ovr_overlay_sys as sys;
+
+use derive_more::{From, Into};
+use lazy_static::lazy_static;
+use std::fmt::Debug;
+use std::sync::Mutex;
 
 lazy_static! {
     // Mutex instead of atomic allows for blocking on lock
