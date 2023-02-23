@@ -2,6 +2,8 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+#[cfg(feature = "ovr_applications")]
+pub mod applications;
 #[cfg(feature = "ovr_chaperone_setup")]
 pub mod chaperone_setup;
 #[cfg(feature = "ovr_input")]
@@ -20,6 +22,8 @@ use self::overlay::OverlayManager;
 use self::chaperone_setup::ChaperoneSetupManager;
 #[cfg(feature = "ovr_input")]
 use self::input::InputManager;
+#[cfg(feature = "ovr_applications")]
+use crate::applications::ApplicationsManager;
 
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
@@ -77,6 +81,11 @@ impl Context {
     #[cfg(feature = "ovr_input")]
     pub fn input_mngr(&self) -> InputManager<'_> {
         InputManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_applications")]
+    pub fn applications_mngr(&self) -> ApplicationsManager<'_> {
+        ApplicationsManager::new(self)
     }
 }
 
