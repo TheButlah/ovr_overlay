@@ -47,6 +47,11 @@ include_cpp! {
     generate_pod!("vr::TrackedDevicePose_t")
     generate_pod!("vr::InputPoseActionData_t")
     generate_pod!("vr::InputOriginInfo_t")
+
+    // applications
+    generate!("vr::IVRApplications")
+    generate!("vr::VRApplications")
+    generate_pod!("vr::EVRApplicationError")
 }
 
 //pub use ffi::vr::*;
