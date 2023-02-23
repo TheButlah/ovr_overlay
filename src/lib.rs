@@ -2,23 +2,13 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+use derive_more::{From, Into};
+use lazy_static::lazy_static;
 use std::fmt::Debug;
 use std::sync::Mutex;
 
-use derive_more::{From, Into};
-use lazy_static::lazy_static;
-
-pub use ovr_overlay_sys as sys;
-
-#[cfg(feature = "ovr_applications")]
-use crate::applications::ApplicationsManager;
-
-#[cfg(feature = "ovr_chaperone_setup")]
-use self::chaperone_setup::ChaperoneSetupManager;
 pub use self::errors::{EVRInitError, InitError};
-#[cfg(feature = "ovr_input")]
-use self::input::InputManager;
-use self::overlay::OverlayManager;
+pub use ovr_overlay_sys as sys;
 
 #[cfg(feature = "ovr_applications")]
 pub mod applications;
