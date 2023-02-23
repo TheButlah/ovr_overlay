@@ -97,6 +97,7 @@ impl Context {
     #[cfg(feature = "ovr_system")]
     pub fn system_mngr(&self) -> SystemManager<'_> {
         SystemManager::new(self)
+    }
 
     #[cfg(feature = "ovr_applications")]
     pub fn applications_mngr(&self) -> ApplicationsManager<'_> {
