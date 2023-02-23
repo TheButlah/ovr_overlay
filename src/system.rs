@@ -11,13 +11,12 @@ pub struct SystemManager<'c> {
     inner: Pin<&'c mut sys::IVRSystem>,
 }
 
-mod sealed {
-    pub trait SealedPropertyType {}
+mod private {
+    pub trait Sealed {}
 }
 
-use sealed::*;
 
-type PropResult<T> = std::result::Result<T, ETrackedPropertyError>;
+type PropResult<T> = Result<T, ETrackedPropertyError>;
 
 pub trait PropertyType: SealedPropertyType + Sized {
     fn get(

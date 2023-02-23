@@ -60,7 +60,7 @@ impl Display for EVROverlayError {
 }
 
 #[cfg(feature = "ovr_system")]
-#[derive(From, Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[derive(Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 #[repr(transparent)]
 pub struct ETrackedPropertyError(sys::ETrackedPropertyError);
 
