@@ -1,7 +1,7 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context, TrackedDeviceIndex};
 
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::ptr::null_mut;
@@ -9,6 +9,7 @@ use std::ptr::null_mut;
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRSystem>,
+    string_buf: Vec<u8>,
 }
 
 mod private {
@@ -136,6 +137,7 @@ impl<'c> SystemManager<'c> {
         Self {
             ctx: Default::default(),
             inner,
+            string_buf: vec![0; sys::k_unMaxPropertyStringSize as usize],
         }
     }
 
@@ -163,7 +165,10 @@ mod test {
             )
             .unwrap();
         let _gc_image_cstring: &CStr = system
-            .get_tracked_device_property(TrackedDeviceIndex::HMD, sys::ETrackedDeviceProperty::Prop_DisplayGCImage_String)
+            .get_tracked_device_property(
+                TrackedDeviceIndex::HMD,
+                sys::ETrackedDeviceProperty::Prop_DisplayGCImage_String,
+            )
             .unwrap();
     }
 }
