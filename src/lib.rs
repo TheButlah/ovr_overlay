@@ -1,6 +1,7 @@
 //! Create a [`Context`] to get started.
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
+#![allow(clippy::result_unit_err)]
 
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
@@ -10,14 +11,25 @@ use std::sync::Mutex;
 pub use self::errors::{EVRInitError, InitError};
 pub use ovr_overlay_sys as sys;
 
+pub mod overlay;
+use self::overlay::OverlayManager;
+
+pub mod pose;
+
 #[cfg(feature = "ovr_applications")]
 pub mod applications;
+#[cfg(feature = "ovr_applications")]
+use self::applications::ApplicationsManager;
+
 #[cfg(feature = "ovr_chaperone_setup")]
 pub mod chaperone_setup;
+#[cfg(feature = "ovr_chaperone_setup")]
+use self::chaperone_setup::ChaperoneSetupManager;
+
 #[cfg(feature = "ovr_input")]
 pub mod input;
-pub mod overlay;
-pub mod pose;
+#[cfg(feature = "ovr_input")]
+use self::input::InputManager;
 
 mod errors;
 
@@ -54,8 +66,9 @@ impl Context {
         }
     }
 
-    // TODO: is this actually unsafe?
-    // see https://docs.rs/openvr/latest/openvr/struct.Context.html#safety
+    // TODO: Is this actually unsafe?
+    /// # Safety
+    /// see https://docs.rs/openvr/latest/openvr/struct.Context.html#safety
     pub unsafe fn shutdown(self) {
         sys::VR_Shutdown()
     }
@@ -136,10 +149,10 @@ impl TrackedDeviceIndex {
     }
 
     /// Device index for the HMD
-    const HMD: Self = Self(sys::k_unTrackedDeviceIndex_Hmd);
+    pub const HMD: Self = Self(sys::k_unTrackedDeviceIndex_Hmd);
 
     /// Maximum number of Tracked Devices
-    const MAX: usize = sys::k_unMaxTrackedDeviceCount as usize;
+    pub const MAX: usize = sys::k_unMaxTrackedDeviceCount as usize;
 
     // Please open an issue on the github repository if you need this.
     // pub const fn is_other(&self) -> bool {

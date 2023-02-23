@@ -6,7 +6,7 @@ fn main() {
     // include path openvr/headers
     let include_path = relative("openvr/headers");
     // This assumes all your C++ bindings are in main.rs
-    let mut b = autocxx_build::Builder::new(relative("src/lib.rs"), &[&include_path])
+    let mut b = autocxx_build::Builder::new(relative("src/lib.rs"), [&include_path])
         .build()
         .expect("Could not autogenerate bindings");
     // arbitrary library name, pick anything
@@ -29,8 +29,9 @@ fn main() {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     for f in input_files {
         let file_name = f.file_name().unwrap();
-        std::fs::copy(&f, out_dir.join(file_name))
-            .expect(&format!("Failed to copy {:?} to {:?}", file_name, &out_dir));
+        std::fs::copy(&f, out_dir.join(file_name)).unwrap_or_else(|err| {
+            panic!("Failed to copy {:?} to {:?}: {err}", file_name, &out_dir)
+        });
     }
 
     println!("cargo:rustc-link-lib=dylib=openvr_api");
