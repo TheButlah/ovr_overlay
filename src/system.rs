@@ -18,6 +18,7 @@ mod private {
 
 type PropResult<T> = Result<T, ETrackedPropertyError>;
 
+/// Trait implemented by types that represent storage types of properties.
 pub trait TrackedDevicePropertyValue: private::Sealed + Sized {
     fn get(
         index: TrackedDeviceIndex,
@@ -25,6 +26,7 @@ pub trait TrackedDevicePropertyValue: private::Sealed + Sized {
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self>;
 }
+
 
 macro_rules! impl_property_type {
     ($ty:ty, $method:ident) => {
@@ -114,7 +116,7 @@ impl<'c> SystemManager<'c> {
         }
     }
 
-    pub fn get_tracked_device_property_sys<T: TrackedDevicePropertyValue>(
+    pub fn get_tracked_device_property<T: TrackedDevicePropertyValue>(
         &mut self,
         index: TrackedDeviceIndex,
         prop: sys::ETrackedDeviceProperty,
@@ -130,15 +132,15 @@ mod test {
     use super::*;
     fn _compile_test(mut system: SystemManager) {
         // let _bootloader_version =
-        //     system.get_property(TrackedDeviceIndex::HMD, props::DisplayBootloaderVersion);
+        //     system.get_tracked_device_property(TrackedDeviceIndex::HMD, props::DisplayBootloaderVersion);
         let _display_version: u64 = system
-            .get_tracked_device_property_sys(
+            .get_tracked_device_property(
                 TrackedDeviceIndex::HMD,
                 sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
             )
             .unwrap();
         // let _gc_image_cstring = system
-        //     .get_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
+        //     .get_tracked_device_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
         //     .unwrap();
     }
 }
