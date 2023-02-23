@@ -18,6 +18,7 @@ include_cpp! {
 
     generate!("vr::IVRSystem")
     generate!("vr::VRSystem")
+    generate!("vr::k_unMaxPropertyStringSize")
 
     generate!("vr::IVROverlay")
     generate!("vr::VROverlay")

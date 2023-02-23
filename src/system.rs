@@ -1,7 +1,7 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context, TrackedDeviceIndex};
 
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::ptr::null_mut;
@@ -9,6 +9,7 @@ use std::ptr::null_mut;
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRSystem>,
+    string_buf: Vec<u8>,
 }
 
 mod private {
@@ -105,6 +106,31 @@ impl TrackedDevicePropertyValue for CString {
     }
 }
 
+// This would probably be easer if it were a method on SystemManager,
+//  as-is this implementation doesn't match the trait definition.
+// impl private::Sealed for &CStr {}
+// impl<'a> TrackedDevicePropertyValue for &'a CStr {
+//     fn get(
+//         index: TrackedDeviceIndex,
+//         system: &'a mut SystemManager,
+//         prop: sys::ETrackedDeviceProperty,
+//     ) -> PropResult<&'a CStr> {
+//         let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
+//         let len = unsafe {
+//             system.inner.as_mut().GetStringTrackedDeviceProperty(
+//                 index.0,
+//                 prop,
+//                 system.string_buf.as_mut_ptr() as *mut i8,
+//                 sys::k_unMaxPropertyStringSize,
+//                 &mut err,
+//             )
+//         };
+//         ETrackedPropertyError::new(err)?;
+
+//         Ok(CStr::from_bytes_with_nul(&system.string_buf[..len as usize]).unwrap())
+//     }
+// }
+
 // TODO: arrays. I don't feel like dealing with them right now.
 
 impl<'c> SystemManager<'c> {
@@ -113,6 +139,7 @@ impl<'c> SystemManager<'c> {
         Self {
             ctx: Default::default(),
             inner,
+            string_buf: vec![0u8; sys::k_unMaxPropertyStringSize as usize],
         }
     }
 
