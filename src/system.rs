@@ -73,7 +73,7 @@ impl TrackedDeviceProperty for crate::pose::Matrix3x4 {
 }
 
 impl private::Sealed for CString {}
-impl TrackedDevicePropertyValue for CString {
+impl TrackedDeviceProperty for CString {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
