@@ -18,7 +18,7 @@ mod private {
 
 type PropResult<T> = Result<T, ETrackedPropertyError>;
 
-pub trait PropertyType: SealedPropertyType + Sized {
+pub trait TrackedDevicePropertyValue: private::Sealed + Sized {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
@@ -28,8 +28,8 @@ pub trait PropertyType: SealedPropertyType + Sized {
 
 macro_rules! impl_property_type {
     ($ty:ty, $method:ident) => {
-        impl SealedPropertyType for $ty {}
-        impl PropertyType for $ty {
+        impl private::Sealed for $ty {}
+        impl TrackedDevicePropertyValue for $ty {
             fn get(
                 index: TrackedDeviceIndex,
                 system: &mut SystemManager,
@@ -49,9 +49,9 @@ impl_property_type!(f32, GetFloatTrackedDeviceProperty);
 impl_property_type!(i32, GetInt32TrackedDeviceProperty);
 impl_property_type!(u64, GetUint64TrackedDeviceProperty);
 
-// thought: other matrix types?
-impl sealed::SealedPropertyType for crate::pose::Matrix3x4 {}
-impl PropertyType for crate::pose::Matrix3x4 {
+// TODO: Decide if we want to support matrix types from other libraries, like nalgebra
+impl private::Sealed for crate::pose::Matrix3x4 {}
+impl TrackedDevicePropertyValue for crate::pose::Matrix3x4 {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
@@ -69,8 +69,8 @@ impl PropertyType for crate::pose::Matrix3x4 {
     }
 }
 
-impl sealed::SealedPropertyType for CString {}
-impl PropertyType for CString {
+impl private::Sealed for CString {}
+impl TrackedDevicePropertyValue for CString {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
@@ -103,22 +103,6 @@ impl PropertyType for CString {
     }
 }
 
-impl sealed::SealedPropertyType for String {}
-impl PropertyType for String {
-    fn get(
-        index: TrackedDeviceIndex,
-        system: &mut SystemManager,
-        prop: sys::ETrackedDeviceProperty,
-    ) -> PropResult<Self> {
-        // might want to make a helper function for this concept
-        // or be fancy like this: <https://www.reddit.com/r/rust/comments/7n1oz2/comment/drzqn9d/?utm_source=share&utm_medium=web2x&context=3>
-        CString::get(index, system, prop).map(|s| {
-            s.into_string()
-                .unwrap_or_else(|s| s.into_cstring().to_string_lossy().into_owned())
-        })
-    }
-}
-
 // TODO: arrays. I don't feel like dealing with them right now.
 
 impl<'c> SystemManager<'c> {
@@ -130,7 +114,7 @@ impl<'c> SystemManager<'c> {
         }
     }
 
-    pub fn get_property_sys<T: PropertyType>(
+    pub fn get_tracked_device_property_sys<T: TrackedDevicePropertyValue>(
         &mut self,
         index: TrackedDeviceIndex,
         prop: sys::ETrackedDeviceProperty,
@@ -148,15 +132,12 @@ mod test {
         // let _bootloader_version =
         //     system.get_property(TrackedDeviceIndex::HMD, props::DisplayBootloaderVersion);
         let _display_version: u64 = system
-            .get_property_sys(
+            .get_tracked_device_property_sys(
                 TrackedDeviceIndex::HMD,
                 sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
             )
             .unwrap();
-        // let _gc_image_string: String = system
-        //     .get_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
-        //     .unwrap();
-        // let _gc_image_cstring: CString = system
+        // let _gc_image_cstring = system
         //     .get_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
         //     .unwrap();
     }
