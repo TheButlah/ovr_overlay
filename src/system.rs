@@ -109,7 +109,7 @@ impl TrackedDeviceProperty for CString {
 // This would probably be easer if it were a method on SystemManager,
 //  as-is this implementation doesn't match the trait definition.
 // impl private::Sealed for &CStr {}
-// impl<'a> TrackedDevicePropertyValue for &'a CStr {
+// impl<'a> TrackedDeviceProperty for &'a CStr {
 //     fn get(
 //         index: TrackedDeviceIndex,
 //         system: &'a mut SystemManager,
