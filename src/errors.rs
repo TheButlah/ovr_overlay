@@ -116,7 +116,7 @@ impl Display for EVRInputError {
 }
 
 #[cfg(feature = "ovr_applications")]
-#[derive(From, Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[derive(Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 #[repr(transparent)]
 pub struct EVRApplicationError(sys::EVRApplicationError);
 

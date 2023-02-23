@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::path::Path;
 use std::pin::Pin;
 
-use crate::{Context, errors::EVRApplicationError, sys};
+use crate::{errors::EVRApplicationError, sys, Context};
 
 pub struct ApplicationsManager<'c> {
     ctx: PhantomData<&'c Context>,
@@ -27,13 +27,19 @@ impl<'c> ApplicationsManager<'c> {
         let path = if let Ok(s) = CString::new(path.to_string_lossy().as_bytes()) {
             s
         } else {
-            return EVRApplicationError::new(sys::EVRApplicationError::VRApplicationError_InvalidParameter);
+            return EVRApplicationError::new(
+                sys::EVRApplicationError::VRApplicationError_InvalidParameter,
+            );
         };
         self.add_application_manifest_raw(&path, temporary)
     }
 
     pub fn add_application_manifest_raw(&mut self, path: &CStr, temporary: bool) -> Result<()> {
-        let err = unsafe { self.inner.as_mut().AddApplicationManifest(path.as_ptr(), temporary) };
+        let err = unsafe {
+            self.inner
+                .as_mut()
+                .AddApplicationManifest(path.as_ptr(), temporary)
+        };
         EVRApplicationError::new(err)
     }
 
@@ -41,7 +47,9 @@ impl<'c> ApplicationsManager<'c> {
         let path = if let Ok(s) = CString::new(path.to_string_lossy().as_bytes()) {
             s
         } else {
-            return EVRApplicationError::new(sys::EVRApplicationError::VRApplicationError_InvalidParameter);
+            return EVRApplicationError::new(
+                sys::EVRApplicationError::VRApplicationError_InvalidParameter,
+            );
         };
         self.remove_application_manifest_raw(&path)
     }
@@ -55,19 +63,17 @@ impl<'c> ApplicationsManager<'c> {
         let name = if let Ok(s) = CString::new(key) {
             s
         } else {
-            return EVRApplicationError::new(sys::EVRApplicationError::VRApplicationError_InvalidParameter)
-                .map(|_| unreachable!());
+            return EVRApplicationError::new(
+                sys::EVRApplicationError::VRApplicationError_InvalidParameter,
+            )
+            .map(|_| unreachable!());
         };
 
         self.is_application_installed_raw(&name)
     }
 
     pub fn is_application_installed_raw(&mut self, key: &CStr) -> Result<bool> {
-        let installed = unsafe {
-            self.inner
-                .as_mut()
-                .IsApplicationInstalled(key.as_ptr())
-        };
+        let installed = unsafe { self.inner.as_mut().IsApplicationInstalled(key.as_ptr()) };
 
         Ok(installed)
     }
