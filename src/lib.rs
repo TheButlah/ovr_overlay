@@ -2,6 +2,26 @@
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 
+use std::fmt::Debug;
+use std::sync::Mutex;
+
+use derive_more::{From, Into};
+use lazy_static::lazy_static;
+
+pub use ovr_overlay_sys as sys;
+
+#[cfg(feature = "ovr_applications")]
+use crate::applications::ApplicationsManager;
+
+#[cfg(feature = "ovr_chaperone_setup")]
+use self::chaperone_setup::ChaperoneSetupManager;
+pub use self::errors::{EVRInitError, InitError};
+#[cfg(feature = "ovr_input")]
+use self::input::InputManager;
+use self::overlay::OverlayManager;
+
+#[cfg(feature = "ovr_applications")]
+pub mod applications;
 #[cfg(feature = "ovr_chaperone_setup")]
 pub mod chaperone_setup;
 #[cfg(feature = "ovr_input")]
@@ -10,21 +30,6 @@ pub mod overlay;
 pub mod pose;
 
 mod errors;
-
-pub use self::errors::{EVRInitError, InitError};
-pub use ovr_overlay_sys as sys;
-
-use self::overlay::OverlayManager;
-
-#[cfg(feature = "ovr_chaperone_setup")]
-use self::chaperone_setup::ChaperoneSetupManager;
-#[cfg(feature = "ovr_input")]
-use self::input::InputManager;
-
-use derive_more::{From, Into};
-use lazy_static::lazy_static;
-use std::fmt::Debug;
-use std::sync::Mutex;
 
 lazy_static! {
     // Mutex instead of atomic allows for blocking on lock
@@ -77,6 +82,11 @@ impl Context {
     #[cfg(feature = "ovr_input")]
     pub fn input_mngr(&self) -> InputManager<'_> {
         InputManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_applications")]
+    pub fn applications_mngr(&self) -> ApplicationsManager<'_> {
+        ApplicationsManager::new(self)
     }
 }
 
