@@ -1,7 +1,7 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context, TrackedDeviceIndex};
 
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::ptr::null_mut;
@@ -136,7 +136,6 @@ impl<'c> SystemManager<'c> {
         Self {
             ctx: Default::default(),
             inner,
-            string_buf: vec![0u8; sys::k_unMaxPropertyStringSize as usize],
         }
     }
 
