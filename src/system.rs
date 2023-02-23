@@ -54,7 +54,7 @@ impl_property_type!(u64, GetUint64TrackedDeviceProperty);
 
 // TODO: Decide if we want to support matrix types from other libraries, like nalgebra
 impl private::Sealed for crate::pose::Matrix3x4 {}
-impl TrackedDevicePropertyValue for crate::pose::Matrix3x4 {
+impl TrackedDeviceProperty for crate::pose::Matrix3x4 {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
