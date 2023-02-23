@@ -20,7 +20,7 @@ mod private {
 type PropResult<T> = Result<T, ETrackedPropertyError>;
 
 /// Trait implemented by types that represent storage types of properties.
-pub trait TrackedDevicePropertyValue: private::Sealed + Sized {
+pub trait TrackedDeviceProperty: private::Sealed + Sized {
     fn get(
         index: TrackedDeviceIndex,
         system: &mut SystemManager,
