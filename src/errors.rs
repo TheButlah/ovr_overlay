@@ -59,6 +59,38 @@ impl Display for EVROverlayError {
     }
 }
 
+#[cfg(feature = "ovr_system")]
+#[derive(Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[repr(transparent)]
+pub struct ETrackedPropertyError(sys::ETrackedPropertyError);
+
+#[cfg(feature = "ovr_system")]
+impl ETrackedPropertyError {
+    pub fn new(err: sys::ETrackedPropertyError) -> Result<(), Self> {
+        if err == sys::ETrackedPropertyError::TrackedProp_Success {
+            Ok(())
+        } else {
+            Err(Self(err))
+        }
+    }
+
+    pub fn description(&self) -> &'static str {
+        "todo"
+    }
+
+    pub fn inner(&self) -> sys::ETrackedPropertyError {
+        self.0
+    }
+}
+
+#[cfg(feature = "ovr_system")]
+impl Display for ETrackedPropertyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let num = self.0 as u8;
+        let desc = self.description();
+        write!(f, "ETrackedPropertyError({num}): {desc}")
+    }
+}
 #[cfg(feature = "ovr_input")]
 #[derive(From, Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 #[repr(transparent)]

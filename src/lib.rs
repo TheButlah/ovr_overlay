@@ -3,23 +3,10 @@
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
 #![allow(clippy::result_unit_err)]
 
-use derive_more::{From, Into};
-use lazy_static::lazy_static;
-use std::fmt::Debug;
-use std::sync::Mutex;
-
-pub use self::errors::{EVRInitError, InitError};
-pub use ovr_overlay_sys as sys;
-
 pub mod overlay;
 use self::overlay::OverlayManager;
 
 pub mod pose;
-
-#[cfg(feature = "ovr_applications")]
-pub mod applications;
-#[cfg(feature = "ovr_applications")]
-use self::applications::ApplicationsManager;
 
 #[cfg(feature = "ovr_chaperone_setup")]
 pub mod chaperone_setup;
@@ -31,7 +18,25 @@ pub mod input;
 #[cfg(feature = "ovr_input")]
 use self::input::InputManager;
 
+#[cfg(feature = "ovr_system")]
+pub mod system;
+#[cfg(feature = "ovr_system")]
+use self::system::SystemManager;
+
+#[cfg(feature = "ovr_applications")]
+pub mod applications;
+#[cfg(feature = "ovr_applications")]
+use self::applications::ApplicationsManager;
+
 mod errors;
+
+pub use self::errors::{EVRInitError, InitError};
+pub use ovr_overlay_sys as sys;
+
+use derive_more::{From, Into};
+use lazy_static::lazy_static;
+use std::fmt::Debug;
+use std::sync::Mutex;
 
 lazy_static! {
     // Mutex instead of atomic allows for blocking on lock
@@ -85,6 +90,11 @@ impl Context {
     #[cfg(feature = "ovr_input")]
     pub fn input_mngr(&self) -> InputManager<'_> {
         InputManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_system")]
+    pub fn system_mngr(&self) -> SystemManager<'_> {
+        SystemManager::new(self)
     }
 
     #[cfg(feature = "ovr_applications")]

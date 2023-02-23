@@ -15,6 +15,7 @@ default = ["ovr_applications", "ovr_chaperone_setup", "ovr_input"]
 ovr_applications = []
 ovr_chaperone_setup = []
 ovr_input = []
+ovr_system = []
 
 [dependencies]
 ovr_overlay_sys = { version = "=0.0.0", path = "sys" }
