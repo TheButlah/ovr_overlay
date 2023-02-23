@@ -1,42 +1,50 @@
 name: Main CI
-on: [pull_request]
+on:
+  pull_request:
+
 jobs:
-  fmt:
-    name: Formatting
+  linting:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt
-      - uses: actions-rs/cargo@v1
+          submodules: true
+          lfs: true
+      - name: Cache cargo dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all --check
 
+      - name: Clippy lints
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all --all-features --all-targets --no-deps
+
   test:
-    name: Test
+    name: Build and test
     runs-on: ubuntu-latest
     steps:
-      - name: Install apt dependencies
-        run: sudo apt-get install -y libsdl2-2.0
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          lfs: true
       - name: Cache cargo dependencies
-        uses: actions/cache@v2
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check that docs build
+        uses: actions-rs/cargo@v1
         with:
-          path: ~/.cargo/
-          key: cache-cargo-deps-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
-      - uses: actions-rs/cargo@v1
+          command: doc
+          args: --all --all-features --no-deps --document-private-items
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features
+          args: --all --all-features --all-targets

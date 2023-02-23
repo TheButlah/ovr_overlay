@@ -68,7 +68,7 @@ impl Context {
 
     // TODO: Is this actually unsafe?
     /// # Safety
-    /// see https://docs.rs/openvr/latest/openvr/struct.Context.html#safety
+    /// see <https://docs.rs/openvr/latest/openvr/struct.Context.html#safety>
     pub unsafe fn shutdown(self) {
         sys::VR_Shutdown()
     }
