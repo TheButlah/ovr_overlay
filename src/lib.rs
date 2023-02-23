@@ -1,30 +1,44 @@
 //! Create a [`Context`] to get started.
 //!
 //! **This library makes no semver guarantees until version 0.1.0 or greater.**
-
-#[cfg(feature = "ovr_input")]
-pub mod input;
-pub mod overlay;
-pub mod pose;
-#[cfg(feature = "ovr_system")]
-pub mod system;
+#![allow(clippy::result_unit_err)]
 
 mod errors;
-
-pub use self::errors::{EVRInitError, InitError};
-pub use ovr_overlay_sys as sys;
-
-use self::overlay::OverlayManager;
-
-#[cfg(feature = "ovr_input")]
-use self::input::InputManager;
-#[cfg(feature = "ovr_system")]
-use self::system::SystemManager;
 
 use derive_more::{From, Into};
 use lazy_static::lazy_static;
 use std::fmt::Debug;
 use std::sync::Mutex;
+
+pub use self::errors::{EVRInitError, InitError};
+pub use ovr_overlay_sys as sys;
+
+pub mod overlay;
+use self::overlay::OverlayManager;
+
+pub mod pose;
+
+#[cfg(feature = "ovr_chaperone_setup")]
+pub mod chaperone_setup;
+#[cfg(feature = "ovr_chaperone_setup")]
+use self::chaperone_setup::ChaperoneSetupManager;
+
+#[cfg(feature = "ovr_input")]
+pub mod input;
+#[cfg(feature = "ovr_input")]
+use self::input::InputManager;
+
+#[cfg(feature = "ovr_system")]
+pub mod system;
+#[cfg(feature = "ovr_system")]
+use self::system::SystemManager;
+
+#[cfg(feature = "ovr_applications")]
+pub mod applications;
+#[cfg(feature = "ovr_applications")]
+use self::applications::ApplicationsManager;
+
+mod errors;
 
 lazy_static! {
     // Mutex instead of atomic allows for blocking on lock
@@ -59,14 +73,20 @@ impl Context {
         }
     }
 
-    // TODO: is this actually unsafe?
-    // see https://docs.rs/openvr/latest/openvr/struct.Context.html#safety
+    // TODO: Is this actually unsafe?
+    /// # Safety
+    /// see <https://docs.rs/openvr/latest/openvr/struct.Context.html#safety>
     pub unsafe fn shutdown(self) {
         sys::VR_Shutdown()
     }
 
     pub fn overlay_mngr(&self) -> OverlayManager<'_> {
         OverlayManager::new(self)
+    }
+
+    #[cfg(feature = "ovr_chaperone_setup")]
+    pub fn chaperone_setup_mngr(&self) -> ChaperoneSetupManager<'_> {
+        ChaperoneSetupManager::new(self)
     }
 
     #[cfg(feature = "ovr_input")]
@@ -77,6 +97,10 @@ impl Context {
     #[cfg(feature = "ovr_system")]
     pub fn system_mngr(&self) -> SystemManager<'_> {
         SystemManager::new(self)
+
+    #[cfg(feature = "ovr_applications")]
+    pub fn applications_mngr(&self) -> ApplicationsManager<'_> {
+        ApplicationsManager::new(self)
     }
 }
 

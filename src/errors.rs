@@ -147,6 +147,63 @@ impl Display for EVRInputError {
     }
 }
 
+#[cfg(feature = "ovr_applications")]
+#[derive(Into, Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[repr(transparent)]
+pub struct EVRApplicationError(sys::EVRApplicationError);
+
+#[cfg(feature = "ovr_applications")]
+impl EVRApplicationError {
+    pub fn new(err: sys::EVRApplicationError) -> Result<(), Self> {
+        if err == sys::EVRApplicationError::VRApplicationError_None {
+            Ok(())
+        } else {
+            Err(Self(err))
+        }
+    }
+
+    pub fn description(&self) -> &'static str {
+        use sys::EVRApplicationError::*;
+        match self.0 {
+            VRApplicationError_None => "None",
+            VRApplicationError_AppKeyAlreadyExists => "AppKeyAlreadyExists",
+            VRApplicationError_NoManifest => "NoManifest",
+            VRApplicationError_NoApplication => "NoApplication",
+            VRApplicationError_InvalidIndex => "InvalidIndex",
+            VRApplicationError_UnknownApplication => "UnknownApplication",
+            VRApplicationError_IPCFailed => "IPCFailed",
+            VRApplicationError_ApplicationAlreadyRunning => "ApplicationAlreadyRunning",
+            VRApplicationError_InvalidManifest => "InvalidManifest",
+            VRApplicationError_InvalidApplication => "InvalidApplication",
+            VRApplicationError_LaunchFailed => "LaunchFailed",
+            VRApplicationError_ApplicationAlreadyStarting => "ApplicationAlreadyStarting",
+            VRApplicationError_LaunchInProgress => "LaunchInProgress",
+            VRApplicationError_OldApplicationQuitting => "OldApplicationQuitting",
+            VRApplicationError_TransitionAborted => "TransitionAborted",
+            VRApplicationError_IsTemplate => "IsTemplate",
+            VRApplicationError_SteamVRIsExiting => "SteamVRIsExiting",
+            VRApplicationError_BufferTooSmall => "BufferTooSmall",
+            VRApplicationError_PropertyNotSet => "PropertyNotSet",
+            VRApplicationError_UnknownProperty => "UnknownProperty",
+            VRApplicationError_InvalidParameter => "InvalidParameter",
+            VRApplicationError_NotImplemented => "NotImplemented",
+        }
+    }
+
+    pub fn inner(&self) -> sys::EVRApplicationError {
+        self.0
+    }
+}
+
+#[cfg(feature = "ovr_applications")]
+impl Display for EVRApplicationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let num = self.0 as u8;
+        let desc = self.description();
+        write!(f, "EVRApplicationError({num}): {desc}")
+    }
+}
+
 #[derive(Debug, From, thiserror::Error)]
 pub enum InitError {
     #[error("OpenVR already initialized")]
