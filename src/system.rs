@@ -143,7 +143,7 @@ impl<'c> SystemManager<'c> {
         }
     }
 
-    pub fn get_tracked_device_property<T: TrackedDevicePropertyValue>(
+    pub fn get_tracked_device_property<T: TrackedDeviceProperty>(
         &mut self,
         index: TrackedDeviceIndex,
         prop: sys::ETrackedDeviceProperty,
