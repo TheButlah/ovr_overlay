@@ -9,7 +9,7 @@ use std::ptr::null_mut;
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRSystem>,
-    string_buf: Vec<u8>,
+    string_buf: Box<[u8]>,
 }
 
 mod private {
@@ -137,7 +137,7 @@ impl<'c> SystemManager<'c> {
         Self {
             ctx: Default::default(),
             inner,
-            string_buf: vec![0; sys::k_unMaxPropertyStringSize as usize],
+            string_buf: vec![0; sys::k_unMaxPropertyStringSize as usize].into_boxed_slice(),
         }
     }
 
