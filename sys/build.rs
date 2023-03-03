@@ -23,8 +23,8 @@ fn main() {
     let input_files = [relative("openvr/bin/linux64/libopenvr_api.so")];
     #[cfg(all(target_os = "linux", target_arch = "x86"))]
     let input_files = [relative("openvr/bin/linux32/libopenvr_api.so")];
-    #[cfg(target_os = "darwin")]
-    let input_files = [panic!("Have not yet tested on mac")];
+    #[cfg(target_os = "macos")]
+    let input_files: [PathBuf; 1] = [panic!("Mac is unsupported")];
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     for f in input_files {
@@ -38,7 +38,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={:?}", out_dir);
 }
 
-fn relative(s: &str) -> std::path::PathBuf {
+fn relative(s: &str) -> PathBuf {
     let result = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     result.join(s).normalize().unwrap().into_path_buf()
 }
