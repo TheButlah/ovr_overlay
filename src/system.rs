@@ -1,7 +1,7 @@
 use crate::errors::ETrackedPropertyError;
 use crate::{sys, Context, TrackedDeviceIndex};
 
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::ptr::null_mut;
@@ -9,6 +9,7 @@ use std::ptr::null_mut;
 pub struct SystemManager<'c> {
     ctx: PhantomData<&'c Context>,
     inner: Pin<&'c mut sys::IVRSystem>,
+    string_buf: Box<[u8]>,
 }
 
 mod private {
@@ -18,10 +19,10 @@ mod private {
 type PropResult<T> = Result<T, ETrackedPropertyError>;
 
 /// Trait implemented by types that represent storage types of properties.
-pub trait TrackedDeviceProperty: private::Sealed + Sized {
-    fn get(
+pub trait TrackedDeviceProperty<'ret>: private::Sealed + Sized {
+    fn get<'manager: 'ret>(
         index: TrackedDeviceIndex,
-        system: &mut SystemManager,
+        system: &'manager mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self>;
 }
@@ -29,10 +30,10 @@ pub trait TrackedDeviceProperty: private::Sealed + Sized {
 macro_rules! impl_property_type {
     ($ty:ty, $method:ident) => {
         impl private::Sealed for $ty {}
-        impl TrackedDeviceProperty for $ty {
-            fn get(
+        impl<'ret> TrackedDeviceProperty<'ret> for $ty {
+            fn get<'manager: 'ret>(
                 index: TrackedDeviceIndex,
-                system: &mut SystemManager,
+                system: &'manager mut SystemManager,
                 prop: sys::ETrackedDeviceProperty,
             ) -> PropResult<Self> {
                 let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
@@ -51,10 +52,10 @@ impl_property_type!(u64, GetUint64TrackedDeviceProperty);
 
 // TODO: Decide if we want to support matrix types from other libraries, like nalgebra
 impl private::Sealed for crate::pose::Matrix3x4 {}
-impl TrackedDeviceProperty for crate::pose::Matrix3x4 {
-    fn get(
+impl<'ret> TrackedDeviceProperty<'ret> for crate::pose::Matrix3x4 {
+    fn get<'manager: 'ret>(
         index: TrackedDeviceIndex,
-        system: &mut SystemManager,
+        system: &'manager mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self> {
         let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
@@ -70,10 +71,10 @@ impl TrackedDeviceProperty for crate::pose::Matrix3x4 {
 }
 
 impl private::Sealed for CString {}
-impl TrackedDeviceProperty for CString {
-    fn get(
+impl<'ret> TrackedDeviceProperty<'ret> for CString {
+    fn get<'manager: 'ret>(
         index: TrackedDeviceIndex,
-        system: &mut SystemManager,
+        system: &'manager mut SystemManager,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<Self> {
         let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
@@ -105,28 +106,28 @@ impl TrackedDeviceProperty for CString {
 
 // This would probably be easer if it were a method on SystemManager,
 //  as-is this implementation doesn't match the trait definition.
-// impl private::Sealed for &CStr {}
-// impl<'a> TrackedDeviceProperty for &'a CStr {
-//     fn get(
-//         index: TrackedDeviceIndex,
-//         system: &'a mut SystemManager,
-//         prop: sys::ETrackedDeviceProperty,
-//     ) -> PropResult<&'a CStr> {
-//         let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
-//         let len = unsafe {
-//             system.inner.as_mut().GetStringTrackedDeviceProperty(
-//                 index.0,
-//                 prop,
-//                 system.string_buf.as_mut_ptr() as *mut i8,
-//                 sys::k_unMaxPropertyStringSize,
-//                 &mut err,
-//             )
-//         };
-//         ETrackedPropertyError::new(err)?;
+impl private::Sealed for &CStr {}
+impl<'ret> TrackedDeviceProperty<'ret> for &'ret CStr {
+    fn get<'manager: 'ret>(
+        index: TrackedDeviceIndex,
+        system: &'manager mut SystemManager,
+        prop: sys::ETrackedDeviceProperty,
+    ) -> PropResult<&'ret CStr> {
+        let mut err = sys::ETrackedPropertyError::TrackedProp_Success;
+        let len = unsafe {
+            system.inner.as_mut().GetStringTrackedDeviceProperty(
+                index.0,
+                prop,
+                system.string_buf.as_mut_ptr() as *mut i8,
+                sys::k_unMaxPropertyStringSize,
+                &mut err,
+            )
+        };
+        ETrackedPropertyError::new(err)?;
 
-//         Ok(CStr::from_bytes_with_nul(&system.string_buf[..len as usize]).unwrap())
-//     }
-// }
+        Ok(CStr::from_bytes_with_nul(&system.string_buf[..len as usize]).unwrap())
+    }
+}
 
 // TODO: arrays. I don't feel like dealing with them right now.
 
@@ -136,11 +137,12 @@ impl<'c> SystemManager<'c> {
         Self {
             ctx: Default::default(),
             inner,
+            string_buf: vec![0; sys::k_unMaxPropertyStringSize as usize].into_boxed_slice(),
         }
     }
 
-    pub fn get_tracked_device_property<T: TrackedDeviceProperty>(
-        &mut self,
+    pub fn get_tracked_device_property<'ret, 'manager: 'ret, T: TrackedDeviceProperty<'ret>>(
+        &'manager mut self,
         index: TrackedDeviceIndex,
         prop: sys::ETrackedDeviceProperty,
     ) -> PropResult<T> {
@@ -162,8 +164,11 @@ mod test {
                 sys::ETrackedDeviceProperty::Prop_DisplayHardwareVersion_Uint64,
             )
             .unwrap();
-        // let _gc_image_cstring = system
-        //     .get_tracked_device_property(TrackedDeviceIndex::HMD, props::DisplayGCImage)
-        //     .unwrap();
+        let _gc_image_cstring: &CStr = system
+            .get_tracked_device_property(
+                TrackedDeviceIndex::HMD,
+                sys::ETrackedDeviceProperty::Prop_DisplayGCImage_String,
+            )
+            .unwrap();
     }
 }
