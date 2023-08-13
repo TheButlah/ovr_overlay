@@ -3,12 +3,12 @@ name = "ovr_overlay_sys"
 version = "0.0.0"
 
 description = "Rust low-level bindings for OpenVR overlays"
-authors = ["Ryan Butler <thebutlah@gmail.com>"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/TheButlah/ovr_overlay"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 
-edition = "2021"
-rust-version = "1.58"
+edition.workspace = true
+rust-version.workspace = true # Rust security fix
 
 exclude = [
     "/openvr",
@@ -30,4 +30,4 @@ cxx = "1"
 
 [build-dependencies]
 autocxx-build = "0.21"
-normpath = "0.3"
+normpath = "1"
