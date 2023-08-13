@@ -1,18 +1,9 @@
 # Cargo stuff
 /target
-Cargo.lock
 
 # OS-specific stuff
 .DS_Store
 
-
-# Added by cargo
-#
-# already existing elements were commented out
-
-#/target
-#Cargo.lock
-
 # IDE Stuff
 /workspace.code-workspace
-.vscode/
+/.vscode/
