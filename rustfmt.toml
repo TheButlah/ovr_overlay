@@ -1,0 +1,3 @@
+# Adopt python's `black` column limit
+max_width = 88
+hard_tabs = true
